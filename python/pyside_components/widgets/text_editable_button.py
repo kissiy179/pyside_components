@@ -6,6 +6,9 @@ class TextEditableButton(DoubleClickableButton):
     
     def __init__(self, text='', parent=None):
         super(DoubleClickableButton, self).__init__(text, parent)
+        self.setup_ui()
+
+    def setup_ui(self):
         self.lineedit = QtWidgets.QLineEdit(self)
         self.lineedit.setContentsMargins(1,1,1,1)
         self.lineedit.hide()
