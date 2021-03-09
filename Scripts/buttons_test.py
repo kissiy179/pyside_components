@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 from functools import partial
 from qtpy import QtCore, QtWidgets

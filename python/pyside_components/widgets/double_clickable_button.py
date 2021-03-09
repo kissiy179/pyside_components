@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 from qtpy import QtCore, QtWidgets
 
 class DoubleClickableButton(QtWidgets.QPushButton):
-        
+
     double_clicked = QtCore.Signal()
     
     def __init__(self, text='', parent=None):
