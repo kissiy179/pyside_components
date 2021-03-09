@@ -17,6 +17,11 @@ class TestDialog(QtWidgets.QDialog):
         super(TestDialog, self).__init__(*args, **kwargs)
         lo = QtWidgets.QVBoxLayout()
 
+        # Deafult push button.
+        btn = QtWidgets.QPushButton(QtWidgets.QPushButton.__name__)
+        btn.clicked.connect(partial(print_button_text, btn))
+        lo.addWidget(btn)
+
         # Double clickable button.
         btn = DoubleClickableButton(DoubleClickableButton.__name__)
         btn.clicked.connect(partial(print_, 'single!'))
@@ -29,7 +34,6 @@ class TestDialog(QtWidgets.QDialog):
         lo.addWidget(btn)
 
         self.setLayout(lo)
-
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
