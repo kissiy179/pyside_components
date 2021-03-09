@@ -10,6 +10,7 @@ class DoubleClickableButton(QtWidgets.QPushButton):
         
     def mouseDoubleClickEvent(self, e):
         self.double_clicked.emit()
+        super(DoubleClickableButton, self).mouseDoubleClickEvent(e)
         
     def keyPressEvent(self, e):
         return
