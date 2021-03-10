@@ -5,6 +5,7 @@ from qtpy import QtCore, QtWidgets
 from pyside_components.widgets.double_clickable_button import DoubleClickableButton
 from pyside_components.widgets.text_editable_button import TextEditableButton
 from pyside_components.widgets.removable_button import RemovableButton
+from pyside_components.widgets.tag_button import TagButton
 
 def print_(s):
     print(s)
@@ -19,25 +20,37 @@ class TestDialog(QtWidgets.QDialog):
         lo = QtWidgets.QVBoxLayout()
 
         # Deafult push button.
-        btn = QtWidgets.QPushButton(QtWidgets.QPushButton.__name__)
+        btn = QtWidgets.QPushButton()
         btn.clicked.connect(partial(print_button_text, btn))
+        btn.setText(type(btn).__name__)
         lo.addWidget(btn)
 
         # Double clickable button.
-        btn = DoubleClickableButton(DoubleClickableButton.__name__)
+        btn = DoubleClickableButton()
         btn.clicked.connect(partial(print_, 'single!'))
         btn.double_clicked.connect(partial(print_, 'double!!'))
+        btn.setText(type(btn).__name__)
         lo.addWidget(btn)
 
         # Text editable button.
-        btn = TextEditableButton(TextEditableButton.__name__)
+        btn = TextEditableButton()
         btn.clicked.connect(partial(print_button_text, btn))
+        btn.setText(type(btn).__name__)
         lo.addWidget(btn)
 
         # Removable button
-        btn = RemovableButton(RemovableButton.__name__)
+        btn = RemovableButton()
         btn.clicked.connect(partial(print_button_text, btn))
         btn.closed.connect(partial(print_, 'closed!'))
+        btn.setText(type(btn).__name__)
+        lo.addWidget(btn)
+
+        # Tag button
+        btn = TagButton()
+        btn.clicked.connect(partial(print_button_text, btn))
+        btn.closed.connect(partial(print_, 'closed!'))
+        btn.text_changed.connect(partial(print_, 'text changed!!'))
+        btn.setText(type(btn).__name__)
         lo.addWidget(btn)
 
         # Spacer
