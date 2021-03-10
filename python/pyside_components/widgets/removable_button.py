@@ -49,10 +49,12 @@ class RemovableButton(QtWidgets.QPushButton):
         self.close_btn.clicked.connect(self.close)
         btn_size = self.close_btn.sizeHint()
         default_padding = self.style().pixelMetric(QtWidgets.QStyle.PM_ButtonMargin)
-        self.setStyleSheet(removable_btn_style % (default_padding,
-                                                  btn_size.width() + default_padding,
-                                                  default_padding,
-                                                  default_padding))
+        frame_width = self.style().pixelMetric(QtWidgets.QStyle.PM_DefaultFrameWidth)
+        padding = default_padding - frame_width
+        self.setStyleSheet(removable_btn_style % (padding,
+                                                  btn_size.width() + padding,
+                                                  padding,
+                                                  padding))
 
     def resizeEvent(self, event):
         super(RemovableButton, self).resizeEvent(event)
