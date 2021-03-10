@@ -23,6 +23,17 @@ def get_icons(color='gray'):
         'times': qta.icon('fa5s.times', color=color),
     }
 
+class CloseButton(QtWidgets.QPushButton):
+
+    def __init__(self, text='', parent=None):
+        super(CloseButton, self).__init__(text, parent)
+        icons = get_icons('gray')
+        self.setIcon(icons.get('times'))
+        self.setStyleSheet(close_btn_style)
+
+    def keyPressEvent(self, e):
+        return
+
 class RemovableButton(QtWidgets.QPushButton):
 
     closed = QtCore.Signal()
@@ -32,11 +43,8 @@ class RemovableButton(QtWidgets.QPushButton):
         self.add_close_button()
 
     def add_close_button(self):
-        icons = get_icons('gray')
-        self.close_btn = QtWidgets.QPushButton(parent=self)
-        self.close_btn.setIcon(icons.get('times'))
+        self.close_btn = CloseButton(parent=self)
         self.close_btn.clicked.connect(self.close)
-        self.close_btn.setStyleSheet(close_btn_style)
         btn_size = self.close_btn.sizeHint()
         default_padding = self.style().pixelMetric(QtWidgets.QStyle.PM_ButtonMargin)
         self.setStyleSheet(removable_btn_style % (default_padding,

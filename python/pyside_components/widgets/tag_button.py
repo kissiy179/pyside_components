@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import codecs
-from qtpy import QtCore, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 import qtawesome as qta
 from .text_editable_button import TextEditableButton
 from .removable_button import RemovableButton
@@ -55,11 +55,9 @@ class TagButton(RemovableButton, TextEditableButton):
         super(TagButton, self).__init__(text, parent)
         self.setCheckable(True)
         self.text_changed.connect(self.set_style)
+        self.style_ = '{}\n{}'.format(self.styleSheet(), tagbutton_style)
 
     def set_style(self):
         color = string_to_color(self.text())
         color_str = 'rgb({},{},{})'.format(*color)
-        style = self.styleSheet()
-        style = '{}\n{}'.format(style, tagbutton_style % color_str)
-        print style
-        self.setStyleSheet(style)
+        self.setStyleSheet(self.style_ % color_str)
