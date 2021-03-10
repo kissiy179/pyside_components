@@ -8,18 +8,25 @@ class Window(QtWidgets.QWidget):
     def __init__(self):
         super(Window, self).__init__()
 
-        flowLayout = FlowLayout(self)
-        flowLayout.addWidget(QtWidgets.QPushButton("Short"))
-        flowLayout.addWidget(QtWidgets.QPushButton("Longer"))
-        flowLayout.addWidget(QtWidgets.QPushButton("Different text"))
-        flowLayout.addWidget(QtWidgets.QPushButton("More text"))
-        flowLayout.addWidget(QtWidgets.QPushButton("Even longer button text"))
+        self.flowLayout = FlowLayout()
+        add_btn = QtWidgets.QPushButton('+')
+        add_btn.clicked.connect(self.add_button)
+        self.flowLayout.addWidget(add_btn)
+        self.flowLayout.addWidget(QtWidgets.QPushButton("Short"))
+        self.flowLayout.addWidget(QtWidgets.QPushButton("Longer"))
+        self.flowLayout.addWidget(QtWidgets.QPushButton("Different text"))
+        self.flowLayout.addWidget(QtWidgets.QPushButton("More text"))
+        self.flowLayout.addWidget(QtWidgets.QPushButton("Even longer button text"))
 
         spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        flowLayout.addItem(spacer)
-        self.setLayout(flowLayout)
+        self.flowLayout.addItem(spacer)
+        self.setLayout(self.flowLayout)
 
         self.setWindowTitle("Flow Layout")
+
+    def add_button(self):
+        btn = QtWidgets.QPushButton('test')
+        self.flowLayout.addWidget(btn)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

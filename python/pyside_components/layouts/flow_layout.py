@@ -25,7 +25,7 @@ class FlowLayout(QLayout):
 
     def addItem(self, item):
         self._item_list.append(item)
-
+        
     def count(self):
         return len(self._item_list)
 
