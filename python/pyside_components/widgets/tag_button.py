@@ -9,7 +9,7 @@ tagbutton_style = '''
 TagButton {
     background-color: %s;
     color: white;
-    border-radius: 3px;
+    border-radius: 5px;
 }
 TagButton:hover {
     background-color: rgb(110,110,110);
@@ -28,6 +28,10 @@ TagButton:checked {
 TagButton:checked:hover {
     background-color: rgb(80,80,80);
     color: gray; border: black 2px;
+}
+
+QLineEdit {
+    border-radius: 4px;
 }
 '''
 
@@ -51,6 +55,8 @@ def string_to_color(s):
 
 class TagButton(RemovableButton, TextEditableButton):
 
+    icon_color = 'lightgray'
+
     def __init__(self, text='', parent=None):
         super(TagButton, self).__init__(text, parent)
         self.setCheckable(True)
@@ -58,6 +64,7 @@ class TagButton(RemovableButton, TextEditableButton):
         self.style_ = '{}\n{}'.format(self.styleSheet(), tagbutton_style)
 
     def set_style(self):
+        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         color = string_to_color(self.text())
         color_str = 'rgb({},{},{})'.format(*color)
         self.setStyleSheet(self.style_ % color_str)
