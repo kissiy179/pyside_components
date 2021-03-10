@@ -64,8 +64,9 @@ class FlowLayout(QLayout):
         for item in self._item_list:
             size = size.expandedTo(item.minimumSize())
 
-        size += QSize(2 * self.contentsMargins().top(),
-                      2 * self.contentsMargins().top())
+        margins = self.contentsMargins()
+        size += QSize(margins.top() + margins.bottom(),
+                      margins.left() + margins.right())
         return size
 
     def _do_layout(self, rect, test_only):
@@ -73,6 +74,8 @@ class FlowLayout(QLayout):
         y = rect.y()
         line_height = 0
         spacing = self.spacing()
+        margins = self.contentsMargins()
+
 
         for item in self._item_list:
             widget = item.widget()
@@ -90,16 +93,17 @@ class FlowLayout(QLayout):
             space_x = spacing + layout_spacing_x
             space_y = spacing + layout_spacing_y
             next_x = x + item.sizeHint().width() + space_x
-            if next_x - space_x > rect.right() and line_height > 0:
+
+            if next_x - space_x > rect.right() - margins.left() - margins.right() and line_height > 0:
                 x = rect.x()
                 y = y + line_height + space_y
                 next_x = x + item.sizeHint().width() + space_x
                 line_height = 0
 
             if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+                item.setGeometry(QRect(QPoint(x + margins.left(), y + margins.top()), item.sizeHint()))
 
             x = next_x
             line_height = max(line_height, item.sizeHint().height())
 
-        return y + line_height - rect.y()
+        return y + line_height - rect.y() + margins.top() + margins.bottom()
