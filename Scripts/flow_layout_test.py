@@ -15,6 +15,10 @@ class Window(QtWidgets.QWidget):
         flowLayout.addWidget(QtWidgets.QPushButton("More text"))
         flowLayout.addWidget(QtWidgets.QPushButton("Even longer button text"))
 
+        spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        flowLayout.addItem(spacer)
+        self.setLayout(flowLayout)
+
         self.setWindowTitle("Flow Layout")
 
 if __name__ == '__main__':
