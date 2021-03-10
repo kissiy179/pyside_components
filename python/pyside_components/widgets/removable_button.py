@@ -2,7 +2,13 @@
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 
-close_button_style = '''
+removable_btn_style = '''
+RemovableButton {
+    padding: %spx %spx %spx %spx;
+}
+'''
+
+close_btn_style = '''
 border: 0px;
 padding: 0px;
 background-color: rgba(0,0,0,0);
@@ -23,22 +29,29 @@ class RemovableButton(QtWidgets.QPushButton):
 
     def __init__(self, text='', parent=None):
         super(RemovableButton, self).__init__(text, parent)
-        self.setup_ui()
+        self.add_close_button()
 
-    def setup_ui(self):
+    def add_close_button(self):
         icons = get_icons('gray')
         self.close_btn = QtWidgets.QPushButton(parent=self)
         self.close_btn.setIcon(icons.get('times'))
         self.close_btn.clicked.connect(self.close)
-        self.close_btn.setStyleSheet(close_button_style)
+        self.close_btn.setStyleSheet(close_btn_style)
+        btn_size = self.close_btn.sizeHint()
+        default_padding = self.style().pixelMetric(QtWidgets.QStyle.PM_ButtonMargin)
+        self.setStyleSheet(removable_btn_style % (default_padding,
+                                                  btn_size.width() + default_padding,
+                                                  default_padding,
+                                                  default_padding))
 
     def resizeEvent(self, event):
+        super(RemovableButton, self).resizeEvent(event)
         btn_size = self.close_btn.sizeHint()
         frame_width = self.style().pixelMetric(QtWidgets.QStyle.PM_DefaultFrameWidth)
         self.close_btn.move(self.rect().right() - frame_width - btn_size.width(),
                             (self.rect().bottom() - btn_size.height() + frame_width * 2) /2)
-        super(RemovableButton, self).resizeEvent(event)
 
     def close(self):
-        self.closed.emit()
         super(RemovableButton, self).close()
+        self.closed.emit()
+
