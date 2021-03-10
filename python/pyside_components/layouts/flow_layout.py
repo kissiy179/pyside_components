@@ -75,7 +75,12 @@ class FlowLayout(QLayout):
         spacing = self.spacing()
 
         for item in self._item_list:
-            style = item.widget().style()
+            widget = item.widget()
+
+            if not widget:
+                continue
+
+            style = widget.style()
             layout_spacing_x = style.layoutSpacing(QSizePolicy.PushButton,
                                                    QSizePolicy.PushButton,
                                                    Qt.Horizontal)
