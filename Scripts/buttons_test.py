@@ -6,7 +6,7 @@ import qtawesome as qta
 from pyside_components.widgets.double_clickable_button import DoubleClickableButton
 from pyside_components.widgets.text_editable_button import TextEditableButton
 from pyside_components.widgets.removable_button import RemovableButton
-from pyside_components.widgets.tag_button import TagButton
+from pyside_components.widgets.tag_item_button import TagItemButton
 
 def print_(s):
     print(s)
@@ -14,10 +14,10 @@ def print_(s):
 def print_button_text(btn):
     print(btn.text())
 
-class TestDialog(QtWidgets.QDialog):
+class MainWindow(QtWidgets.QDialog):
 
     def __init__(self, *args, **kwargs):
-        super(TestDialog, self).__init__(*args, **kwargs)
+        super(MainWindow, self).__init__(*args, **kwargs)
         lo = QtWidgets.QVBoxLayout()
 
         # Deafult push button.
@@ -67,7 +67,7 @@ class TestDialog(QtWidgets.QDialog):
         lo.addWidget(self.tag_btn_le)
 
         self.tag_btn_lo = QtWidgets.QVBoxLayout()
-        btn = TagButton()
+        btn = TagItemButton()
         btn.clicked.connect(partial(print_button_text, btn))
         btn.closed.connect(partial(print_, 'closed!'))
         btn.text_changed.connect(partial(print_, 'text changed!!'))
@@ -95,7 +95,7 @@ class TestDialog(QtWidgets.QDialog):
             return
         
         self.tag_btn_le.setText('')
-        btn = TagButton()
+        btn = TagItemButton()
         btn.clicked.connect(partial(print_button_text, btn))
         btn.closed.connect(partial(print_, 'closed!'))
         btn.setText(text)
@@ -105,6 +105,6 @@ class TestDialog(QtWidgets.QDialog):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    dialog = TestDialog()
-    dialog.show()
+    win = MainWindow()
+    win.show()
     sys.exit(app.exec_())

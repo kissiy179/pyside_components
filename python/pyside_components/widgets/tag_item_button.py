@@ -5,27 +5,27 @@ import qtawesome as qta
 from .text_editable_button import TextEditableButton
 from .removable_button import RemovableButton
 
-tagbutton_style = '''
-TagButton {
+TagItemButton_style = '''
+TagItemButton {
     background-color: %s;
     color: white;
     border-radius: 5px;
 }
-TagButton:hover {
+TagItemButton:hover {
     background-color: rgb(110,110,110);
     color: white;
     border: black 2px;
 }
-TagButton:pressed {
+TagItemButton:pressed {
     background-color: rgb(45,45,45);
     color: white;
     border: black 2px;
 }
-TagButton:checked {
+TagItemButton:checked {
     background-color: rgb(55,55,55);
     color: gray; border: black 2px;
 }
-TagButton:checked:hover {
+TagItemButton:checked:hover {
     background-color: rgb(80,80,80);
     color: gray; border: black 2px;
 }
@@ -53,15 +53,16 @@ def string_to_color(s):
         
     return color
 
-class TagButton(RemovableButton, TextEditableButton):
+class TagItemButton(RemovableButton, TextEditableButton):
 
     icon_color = 'lightgray'
 
     def __init__(self, text='', parent=None):
-        super(TagButton, self).__init__(text, parent)
+        super(TagItemButton, self).__init__(text, parent)
         self.setCheckable(True)
         self.text_changed.connect(self.set_style)
-        self.style_ = '{}\n{}'.format(self.styleSheet(), tagbutton_style)
+        self.style_ = '{}\n{}'.format(self.styleSheet(), TagItemButton_style)
+        self.set_style()
 
     def set_style(self):
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
