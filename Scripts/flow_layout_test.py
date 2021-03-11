@@ -4,9 +4,9 @@ import codecs
 from qtpy import QtCore, QtGui, QtWidgets
 from pyside_components.layouts.flow_layout import FlowLayout
 
-class Window(QtWidgets.QWidget):
+class MainWindow(QtWidgets.QWidget):
     def __init__(self):
-        super(Window, self).__init__()
+        super(MainWindow, self).__init__()
 
         self.flowLayout = FlowLayout()
         add_btn = QtWidgets.QPushButton('+')
@@ -30,6 +30,6 @@ class Window(QtWidgets.QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    mainWin = Window()
-    mainWin.show()
+    win = MainWindow()
+    win.show()
     sys.exit(app.exec_())
