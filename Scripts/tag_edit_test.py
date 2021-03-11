@@ -11,8 +11,9 @@ class MainWindow(QtWidgets.QWidget):
         lo = QtWidgets.QVBoxLayout()
         lo.setContentsMargins(0,0,0,0)
         self.setLayout(lo)
-        tag_view = TagEdit()
-        lo.addWidget(tag_view)
+        tag_edit = TagEdit()
+        tag_edit.set_placeholder_text('Add filter...')
+        lo.addWidget(tag_edit)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

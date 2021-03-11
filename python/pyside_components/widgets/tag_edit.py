@@ -19,19 +19,10 @@ class LineEditForAddingTag(QtWidgets.QLineEdit):
         self.setStyleSheet(lineedit_style)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
-class TagItem(object):
-
-    def __init__(self, text, enabled=True, color=''):
-        self.text = text
-        self.enabled = enabled
-        self.color = color
-
-    def __repr__(self):
-        return '{}({}, {}, {})'.format(type(self).__name__, self.text, self.enabled, self.color)
-
 class TagEdit(QtWidgets.QWidget):
 
     inputed_tag = ''
+    placeholder_text = 'Add tag...'
     tags = {}
 
     def __init__(self, parent=None):
@@ -50,6 +41,7 @@ class TagEdit(QtWidgets.QWidget):
         self.le = LineEditForAddingTag()
         self.le.textChanged.connect(self.input_tag)
         self.le.editingFinished.connect(self.add_tag)
+        self.le.setPlaceholderText(self.placeholder_text)
         lo.addWidget(self.le)
                 
         for tag in sorted(self.tags):
@@ -88,6 +80,10 @@ class TagEdit(QtWidgets.QWidget):
             
         self.tags[tag] = not checked
         print self.get_enabled_tags()
+
+    def set_placeholder_text(self, text):
+        self.placeholder_text = text
+        self.le.setPlaceholderText(text)
 
     def get_tags(self):
         return sorted(self.tags)
