@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import codecs
 from qtpy import QtCore, QtGui, QtWidgets
 import qtawesome as qta
@@ -36,8 +37,13 @@ QLineEdit {
 '''
 
 def char_to_color(c):
-    hex_code = codecs.encode(c[0].lower(), 'hex')
-    col_num = eval('0x{}'.format(hex_code))
+    if sys.version.startswith('3'):
+        hex_code = codecs.encode(bytes(c, 'utf-8'), 'hex-codec')
+
+    else:
+        hex_code = codecs.encode(c.lower(), 'hex')
+        
+    col_num = int(hex_code, 16)    
     return col_num
 
 def string_to_color(s):
