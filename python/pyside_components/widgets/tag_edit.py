@@ -50,6 +50,7 @@ class TagEdit(QtWidgets.QWidget):
             btn.setChecked(checked)
             btn.toggled.connect(partial(self.set_tag_checked, tag))
             btn.closed.connect(partial(self.remove_tag, tag))
+            # btn.text_changed()
             lo.addWidget(btn)#, QtCore.Qt.AlignLeft)
             
         spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -79,7 +80,7 @@ class TagEdit(QtWidgets.QWidget):
             return
             
         self.tags[tag] = not checked
-        print self.get_enabled_tags()
+        print(self.get_enabled_tags())
 
     def set_placeholder_text(self, text):
         self.placeholder_text = text
