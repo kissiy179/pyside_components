@@ -67,14 +67,14 @@ def string_to_color(s, correction=40):
         
     return color
 
-class TagItemButton(RemovableButton, TextEditableButton):
+class TagItemButton(RemovableButton): #, TextEditableButton):
 
     icon_color = 'lightgray'
 
     def __init__(self, text='', parent=None):
         super(TagItemButton, self).__init__(text, parent)
         self.setCheckable(True)
-        self.text_changed.connect(self.set_style)
+        # self.text_changed.connect(self.set_style)
         self.style_ = '{}\n{}'.format(self.styleSheet(), TagItemButton_style)
         self.set_style()
 
