@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QDialog):
         btn = TagItemButton()
         btn.clicked.connect(partial(print_button_text, btn))
         btn.closed.connect(partial(print_, 'closed!'))
-        btn.text_changed.connect(partial(print_, 'text changed!!'))
+        # btn.text_changed.connect(partial(print_, 'text changed!!'))
         btn.setText(type(btn).__name__)
         self.tag_btn_lo.addWidget(btn)
 
