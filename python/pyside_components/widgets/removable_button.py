@@ -35,13 +35,13 @@ class CloseButton(QtWidgets.QPushButton):
     def keyPressEvent(self, e):
         return
 
-class RemovableButton(QtWidgets.QPushButton):
+class RemovableButtonMixin(object):
 
     closed = QtCore.Signal()
     icon_color = 'gray'
 
-    def __init__(self, text='', parent=None):
-        super(RemovableButton, self).__init__(text, parent)
+    def __init__(self, *args, **kwargs):
+        super(RemovableButtonMixin, self).__init__(*args, **kwargs)
         self.add_close_button()
 
     def add_close_button(self):
@@ -57,13 +57,19 @@ class RemovableButton(QtWidgets.QPushButton):
                                                   padding))
 
     def resizeEvent(self, event):
-        super(RemovableButton, self).resizeEvent(event)
+        super(RemovableButtonMixin, self).resizeEvent(event)
         btn_size = self.close_btn.sizeHint()
         frame_width = self.style().pixelMetric(QtWidgets.QStyle.PM_DefaultFrameWidth)
         self.close_btn.move(self.rect().right() - frame_width - btn_size.width(),
                             (self.rect().bottom() - btn_size.height() + frame_width * 2) /2)
 
     def close(self):
-        super(RemovableButton, self).close()
+        super(RemovableButtonMixin, self).close()
         self.closed.emit()
 
+
+
+class RemovableButton(RemovableButtonMixin, QtWidgets.QPushButton):
+
+    def __init__(self, text='', parent=None):
+        super(RemovableButton, self).__init__(text, parent)
