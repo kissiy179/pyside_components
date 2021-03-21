@@ -3,9 +3,9 @@ from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 
 removable_btn_style = '''
-RemovableButton {
-    padding: %spx %spx %spx %spx;
-}
+{class_name} {{
+    padding: {padding_left}px {padding_right}px {padding_top}px {padding_bottom}px;
+}}
 '''
 
 close_btn_style = '''
@@ -24,7 +24,6 @@ def get_icons(color='gray'):
     }
 
 class CloseButton(QtWidgets.QPushButton):
-
 
     def __init__(self, text='', icon_color='gray', parent=None):
         super(CloseButton, self).__init__(text, parent)
@@ -50,11 +49,12 @@ class RemovableButtonMixin(object):
         btn_size = self.close_btn.sizeHint()
         default_padding = self.style().pixelMetric(QtWidgets.QStyle.PM_ButtonMargin)
         frame_width = self.style().pixelMetric(QtWidgets.QStyle.PM_DefaultFrameWidth)
-        padding = default_padding - frame_width
-        self.setStyleSheet(removable_btn_style % (padding,
-                                                  btn_size.width() + padding,
-                                                  padding,
-                                                  padding))
+        padding = default_padding - frame_width 
+        self.setStyleSheet(removable_btn_style.format(class_name=type(self).__name__,
+                                                      padding_left=padding,
+                                                      padding_right=btn_size.width() + padding,
+                                                      padding_top=padding,
+                                                      padding_bottom=padding))
 
     def resizeEvent(self, event):
         super(RemovableButtonMixin, self).resizeEvent(event)
@@ -66,8 +66,6 @@ class RemovableButtonMixin(object):
     def close(self):
         super(RemovableButtonMixin, self).close()
         self.closed.emit()
-
-
 
 class RemovableButton(RemovableButtonMixin, QtWidgets.QPushButton):
 

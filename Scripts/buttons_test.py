@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+from pprint import pprint
 from functools import partial
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
@@ -61,7 +62,6 @@ class MainWindow(QtWidgets.QDialog):
 
         # Tag button
         self.tag_btn_le = QtWidgets.QLineEdit()
-        # self.tag_btn_le.setStyleSheet('border-radius: 5px')
         self.tag_btn_le.setPlaceholderText('Add tag...')
         self.tag_btn_le.editingFinished.connect(self.add_tag_button)
         lo.addWidget(self.tag_btn_le)
@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QDialog):
         btn = TagItemButton()
         btn.clicked.connect(partial(print_button_text, btn))
         btn.closed.connect(partial(print_, 'closed!'))
-        # btn.text_changed.connect(partial(print_, 'text changed!!'))
+        btn.text_changed.connect(partial(print_, 'text changed!!'))
         btn.setText(type(btn).__name__)
         self.tag_btn_lo.addWidget(btn)
 
