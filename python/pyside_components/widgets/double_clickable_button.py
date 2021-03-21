@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 from qtpy import QtCore, QtWidgets
 
-class DoubleClickableButton(QtWidgets.QPushButton):
+class DoubleClickableButtonMixin(object):
 
     double_clicked = QtCore.Signal()
     
-    def __init__(self, text='', parent=None):
-        super(DoubleClickableButton, self).__init__(text, parent)
-        
     def mouseDoubleClickEvent(self, e):
         self.double_clicked.emit()
-        super(DoubleClickableButton, self).mouseDoubleClickEvent(e)
+        super(DoubleClickableButtonMixin, self).mouseDoubleClickEvent(e)
         
     def keyPressEvent(self, e):
         return
+        
+
+class DoubleClickableButton(DoubleClickableButtonMixin, QtWidgets.QPushButton):
+  
+    def __init__(self, text='', parent=None):
+        super(DoubleClickableButton, self).__init__(text, parent)
         
