@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from functools import partial
+from collections import OrderedDict
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 from .tag_item_button import TagItemButton
@@ -10,6 +11,15 @@ QLineEdit {
     border-radius: 5px;
 }
 '''
+
+def log_tags(func):
+
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        func(*args, **kwargs)
+        print(self.get_enabled_tags())
+
+    return wrapper
 
 class LineEditForAddingTag(QtWidgets.QLineEdit):
 
@@ -23,7 +33,7 @@ class TagEdit(QtWidgets.QWidget):
 
     inputed_tag = ''
     placeholder_text = 'Add tag...'
-    tags = {}
+    tags = OrderedDict()
 
     def __init__(self, parent=None):
         super(TagEdit, self).__init__(parent)
@@ -44,13 +54,13 @@ class TagEdit(QtWidgets.QWidget):
         self.le.setPlaceholderText(self.placeholder_text)
         lo.addWidget(self.le)
                 
-        for tag in sorted(self.tags):
+        for i, tag in enumerate(sorted(self.tags)):
             checked = not self.tags.get(tag)
             btn = TagItemButton(tag)
             btn.setChecked(checked)
-            btn.toggled.connect(partial(self.set_tag_checked, tag))
-            btn.closed.connect(partial(self.remove_tag, tag))
-            # btn.text_changed()
+            btn.toggled.connect(partial(self.set_tag_checked, i))
+            btn.closed.connect(partial(self.remove_tag, i))
+            btn.text_changed.connect(partial(self.change_tag, i))
             lo.addWidget(btn)#, QtCore.Qt.AlignLeft)
             
         spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -60,6 +70,7 @@ class TagEdit(QtWidgets.QWidget):
     def input_tag(self, tag):
         self.inputed_tag = tag
         
+    @log_tags
     def add_tag(self):
         if self.inputed_tag == '':
             return
@@ -69,18 +80,28 @@ class TagEdit(QtWidgets.QWidget):
         self.init_ui()
         self.le.setFocus()
         
-    def remove_tag(self, tag):
-        if not tag in self.tags.keys():
-            return
-            
+    @log_tags
+    def remove_tag(self, idx):
+        tags = self.tags
+        tag = list(tags.keys())[idx]
         del self.tags[tag]
-        
-    def set_tag_checked(self, tag, checked):
-        if not tag in self.tags.keys():
-            return
-            
+        self.init_ui()
+        self.le.setFocus()
+
+    @log_tags
+    def set_tag_checked(self, idx, checked):
+        print(idx)
+        tags = self.tags
+        tag = list(tags.keys())[idx]
         self.tags[tag] = not checked
-        print(self.get_enabled_tags())
+
+    @log_tags
+    def change_tag(self, idx, tag):
+        tags = self.tags
+        crr_tag = list(tags.keys())[idx]
+        self.tags = OrderedDict([(tag, v) if k == crr_tag else (k, v) for k, v in tags.items()])
+        # self.init_ui()
+        # self.le.setFocus()
 
     def set_placeholder_text(self, text):
         self.placeholder_text = text
