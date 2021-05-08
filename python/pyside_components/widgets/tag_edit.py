@@ -19,7 +19,12 @@ class LineEditForAddingTag(QtWidgets.QLineEdit):
         self.setMinimumSize(100, 23)
         self.setStyleSheet(lineedit_style)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.setClearButtonEnabled(True)
+
+        try:
+            self.setClearButtonEnabled(True)
+
+        except:
+            pass
 
 class TagEdit(QtWidgets.QWidget):
 

@@ -39,7 +39,6 @@ class RemovableButtonMixin(object):
 
     closed = QtCore.Signal()
     icon_color = 'gray'
-    icon_color_active = 'white'
 
     def __init__(self, *args, **kwargs):
         super(RemovableButtonMixin, self).__init__(*args, **kwargs)
