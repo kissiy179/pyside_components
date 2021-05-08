@@ -20,7 +20,7 @@ def get_icons(color='gray'):
     globalでアイコン作成するとスタンドアロンアプリではエラーになるので関数内で作成
     '''
     return {
-        'times': qta.icon('fa5s.times', color=color),
+        'close': qta.icon('fa5s.times-circle', color=color),
     }
 
 class CloseButton(QtWidgets.QPushButton):
@@ -28,7 +28,8 @@ class CloseButton(QtWidgets.QPushButton):
     def __init__(self, text='', icon_color='gray', parent=None):
         super(CloseButton, self).__init__(text, parent)
         icons = get_icons(icon_color)
-        self.setIcon(icons.get('times'))
+        self.setIcon(icons.get('close'))
+        self.setIconSize(QtCore.QSize(16, 16))
         self.setStyleSheet(close_btn_style)
 
     def keyPressEvent(self, e):
@@ -38,6 +39,7 @@ class RemovableButtonMixin(object):
 
     closed = QtCore.Signal()
     icon_color = 'gray'
+    icon_color_active = 'white'
 
     def __init__(self, *args, **kwargs):
         super(RemovableButtonMixin, self).__init__(*args, **kwargs)
