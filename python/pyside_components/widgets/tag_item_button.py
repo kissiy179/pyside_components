@@ -69,7 +69,7 @@ def string_to_color(s, correction=40):
 
 class TagItemButton(RemovableButtonMixin, TextEditableButtonMixin, QtWidgets.QPushButton):
 
-    icon_color = 'lightgray'
+    icon_color = 'whitesmoke'
 
     def __init__(self, text='', parent=None):
         super(TagItemButton, self).__init__(text, parent)

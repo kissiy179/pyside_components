@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from functools import partial
+from pprint import pprint
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 from .tag_item_button import TagItemButton
@@ -15,9 +16,10 @@ class LineEditForAddingTag(QtWidgets.QLineEdit):
 
     def __init__(self, parent=None):
         super(LineEditForAddingTag, self).__init__(parent)
-        self.setMinimumSize(100, 22)
+        self.setMinimumSize(100, 23)
         self.setStyleSheet(lineedit_style)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.setClearButtonEnabled(True)
 
 class TagEdit(QtWidgets.QWidget):
 
