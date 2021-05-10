@@ -12,7 +12,7 @@ class MainWindow(QtWidgets.QWidget):
         lo.setContentsMargins(0,0,0,0)
         self.setLayout(lo)
         tag_edit = TagEdit()
-        tag_edit.set_placeholder_text('Add filter...')
+        tag_edit.line_edit.setPlaceholderText('Add filter...')
         lo.addWidget(tag_edit)
 
 if __name__ == '__main__':
