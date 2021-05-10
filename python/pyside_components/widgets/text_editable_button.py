@@ -4,7 +4,7 @@ from .double_clickable_button import DoubleClickableButtonMixin
 
 class TextEditableButtonMixin(DoubleClickableButtonMixin):
     
-    text_changed = QtCore.Signal()
+    text_changed = QtCore.Signal(str)
     
     def __init__(self, *args, **kwargs):
         super(TextEditableButtonMixin, self).__init__(*args, **kwargs)
@@ -23,7 +23,7 @@ class TextEditableButtonMixin(DoubleClickableButtonMixin):
 
     def setText(self, s):
         super(TextEditableButtonMixin, self).setText(s)
-        self.text_changed.emit()
+        self.text_changed.emit(s)
 
     def set_text(self):
         text = self.lineedit.text()
