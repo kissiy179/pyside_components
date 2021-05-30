@@ -74,7 +74,7 @@ class TagItemButton(RemovableButtonMixin, TextEditableButtonMixin, QtWidgets.QPu
     def __init__(self, text='', parent=None):
         super(TagItemButton, self).__init__(text, parent)
         self.setCheckable(True)
-        self.text_changed.connect(self.set_style)
+        # self.text_changed.connect(self.set_style)
         self.set_style()
 
     def set_style(self):

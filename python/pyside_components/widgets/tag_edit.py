@@ -12,6 +12,9 @@ QLineEdit {
 }
 '''
 
+def log(s):
+    print(s)
+
 class LineEditForAddingTag(QtWidgets.QLineEdit):
 
     def __init__(self, parent=None):
@@ -62,14 +65,19 @@ class TagEdit(QtWidgets.QWidget):
         hlo.addItem(spc)
 
     def clear_tag_buttons(self):
+        tags = dict(self.tags)
+
         for btn in self.tag_buttons:
-            btn.closed.disconnect()
+            # btn.closed.disconnect()
             btn.close()
 
+        self.tags = tags
         self.tag_buttons = []
 
-    def draw_tag_buttons(self):
+    def draw_tag_buttons(self, dmy=None):
         self.clear_tag_buttons()
+
+        print(self.tags)
 
         for tag in sorted(self.tags):
             checked = not self.tags.get(tag)
@@ -78,9 +86,14 @@ class TagEdit(QtWidgets.QWidget):
             btn.setChecked(checked)
             btn.toggled.connect(partial(self.set_tag_checked, tag))
             btn.closed.connect(partial(self.remove_tag, tag))
+            btn.text_changed.connect(partial(self.change_tag, tag))
+            # btn.text_changed.connect(partial(self.draw_tag_buttons))
             self.tag_buttons.append(btn)
 
     def add_tag(self, tag):
+        if not isinstance(tag, str) or not tag:
+            return
+
         self.tags[tag] = True
 
     def add_tag_from_line_edit(self):
@@ -98,6 +111,16 @@ class TagEdit(QtWidgets.QWidget):
             return
             
         self.tags[tag] = not checked
+        print(self.get_enabled_tags())
+
+    def change_tag(self, old_tag, new_tag):
+        if not old_tag in self.tags or new_tag in self.tags:
+            return
+
+        checked = self.tags.get(old_tag, True)
+        del self.tags[old_tag]
+        self.tags[new_tag] = checked
+        self.draw_tag_buttons()
         print(self.get_enabled_tags())
 
     def get_tags(self):
