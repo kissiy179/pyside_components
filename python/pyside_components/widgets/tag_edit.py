@@ -64,6 +64,18 @@ class TagEdit(QtWidgets.QWidget):
         spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         hlo.addItem(spc)
 
+    @staticmethod
+    def update_ui(*args, **kwargs):
+        
+        def outer(func):
+            def inner(*args, **kwargs):
+                rtn = func(*args, **kwargs)
+                return rtn
+
+            return inner
+
+        return outer    
+
     def clear_tag_buttons(self):
         tags = dict(self.tags)
 
@@ -76,10 +88,9 @@ class TagEdit(QtWidgets.QWidget):
 
     def draw_tag_buttons(self, dmy=None):
         self.clear_tag_buttons()
+        tags = self.get_tags()
 
-        print(self.tags)
-
-        for tag in sorted(self.tags):
+        for tag in tags:
             checked = not self.tags.get(tag)
             btn = TagItemButton(tag)
             self.tag_lo.addWidget(btn)#, QtCore.Qt.AlignLeft)
@@ -113,6 +124,7 @@ class TagEdit(QtWidgets.QWidget):
         self.tags[tag] = not checked
         print(self.get_enabled_tags())
 
+    # @update_ui
     def change_tag(self, old_tag, new_tag):
         if not old_tag in self.tags or new_tag in self.tags:
             return
@@ -124,7 +136,8 @@ class TagEdit(QtWidgets.QWidget):
         print(self.get_enabled_tags())
 
     def get_tags(self):
-        return sorted(self.tags)
+        sorted_ = sorted(self.tags, key=lambda s: s.upper())
+        return sorted_
 
     def get_enabled_tags(self):
         return [tag for tag, enabled in self.tags.items() if enabled]
