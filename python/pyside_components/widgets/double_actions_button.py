@@ -13,7 +13,8 @@ class DoubleActionsButtonMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(DoubleActionsButtonMixin, self).__init__(*args, **kwargs)
-        self.inner_btn = self.add_inner_button()
+        btn = self.add_inner_button()
+        self.set_inner_button(btn)
 
     def add_inner_button(self):
         '''
@@ -23,6 +24,10 @@ class DoubleActionsButtonMixin(object):
         btn = QtWidgets.QPushButton(parent=self)
         btn.clicked.connect(partial(print, 'Inner button'))
         return btn
+
+    def set_inner_button(self, btn):
+        self.inner_btn = btn
+        self.update_size()
 
     def update_size(self):
         '''
