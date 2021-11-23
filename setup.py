@@ -6,6 +6,13 @@ from os.path import exists
 from setuptools import setup
 from setuptools import find_packages
 
+# List of packages to ignore.
+# Pre-installed in Maya, etc.
+IGNORE_PACKAGES = ['PySide', 'PySide2']
+
+# Is the Python running in Maya?
+IS_MAYA_PYTHON = 'maya' in sys.prefix.lower()
+
 def _requires_from_file(filename):
     if not exists(filename):
         return []
