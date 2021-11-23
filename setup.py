@@ -26,7 +26,9 @@ def _requires_from_file(filename):
             line = line.strip('\n')
             package_name = line.split(' ')[0]
 
+            print(package_name, '-'*30)
             if IS_MAYA_PYTHON and package_name in IGNORE_PACKAGES:
+                print('IGNORE!!!!!!!')
                 continue
 
             requires[line] = line
