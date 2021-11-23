@@ -6,45 +6,20 @@ from os.path import exists
 from setuptools import setup
 from setuptools import find_packages
 
-# List of packages to ignore.
-# Pre-installed in Maya, etc.
-IGNORE_PACKAGES = ['PySide', 'PySide2']
-
-# Is the Python running in Maya?
-IS_MAYA_PYTHON = 'maya' in sys.prefix.lower()
-
-def _requires_from_file(filename):
+def get_requires_from_file(filename):
     if not exists(filename):
         return []
-
-    requires = {}
     
-    with open(filename, 'r') as f:
-        lines = f.readlines()
-
-        for line in lines:
-            line = line.strip('\n')
-            package_name = line.split(' ')[0]
-
-            print(package_name, '-'*30)
-            if IS_MAYA_PYTHON and package_name in IGNORE_PACKAGES:
-                print('IGNORE!!!!!!!')
-                continue
-
-            requires[line] = line
-
-    return list(requires.keys())
+    return open(filename).read().splitlines()
 
 def get_requires():
     requires = []
     
     if sys.version[0] == '2':
-        requires_name = 'requirements2.txt'
+        requires = get_requires_from_file('requirements2.txt')
 
     if not requires:
-        requires_name = 'requirements.txt'
-
-        requires = _requires_from_file(requires_name)
+        requires = get_requires_from_file('requirements.txt')
 
     return requires
 
