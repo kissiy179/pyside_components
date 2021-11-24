@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from functools import partial
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 
@@ -22,7 +21,6 @@ class DoubleActionsButtonMixin(object):
         オーバーライド前提
         '''
         btn = QtWidgets.QPushButton(parent=self)
-        btn.clicked.connect(partial(print, 'Inner button'))
         return btn
 
     def set_inner_button(self, btn):
