@@ -17,6 +17,14 @@ def getOpenFileName(parent, dir='', filter=''):
 
     return ''
 
+def getExistingDirectory(parent, dir=''):
+    '''
+    QtWidgets.QFileDialog.getExistingDirectory が inspect.argspec に通らないので関数でラップ
+    '''
+    dir = QtWidgets.QFileDialog.getExistingDirectory(parent, dir=dir)
+    return dir
+
+
 class FilePathEdit(QtWidgets.QWidget):
     '''
     ファイルパス用ウィジェット
@@ -66,3 +74,10 @@ class FilePathEdit(QtWidgets.QWidget):
 
     def setText(self, text):
         self.line_edit.setText(text)
+
+class DirectoryPathEdit(FilePathEdit):
+    '''
+    ディレクトリパス用ウィジェット
+    '''
+    open_method = getExistingDirectory
+
