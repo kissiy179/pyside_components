@@ -40,6 +40,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
         # Dialog Button
         self.dialog_btn = QtWidgets.QPushButton()
+        self.dialog_btn.setStyleSheet('background-color: transparent; border-style: solid; border-width:0px;')
         self.dialog_btn.setIcon(dir_icon)
         self.dialog_btn.clicked.connect(self.open_dialog)
         hlo.addWidget(self.dialog_btn)
