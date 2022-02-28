@@ -33,7 +33,7 @@ class FilePathEdit(QtWidgets.QWidget):
     filter = 'All files (*)'
     open_method = getOpenFileName
     textChanged = QtCore.Signal(str)
-    editingFinished = QtCore.Signal(str)
+    editingFinished = QtCore.Signal()
     
     def __init__(self, *args, **kwargs):
         super(FilePathEdit, self).__init__(*args, **kwargs)
