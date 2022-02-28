@@ -33,6 +33,7 @@ class FilePathEdit(QtWidgets.QWidget):
     filter = 'All files (*)'
     open_method = getOpenFileName
     textChanged = QtCore.Signal(str)
+    editingFinished = QtCore.Signal(str)
     
     def __init__(self, *args, **kwargs):
         super(FilePathEdit, self).__init__(*args, **kwargs)
@@ -44,6 +45,7 @@ class FilePathEdit(QtWidgets.QWidget):
         # LineEdit
         self.line_edit = QtWidgets.QLineEdit()
         self.line_edit.textChanged.connect(self.textChanged)
+        self.line_edit.editingFinished.connect(self.editingFinished)
         hlo.addWidget(self.line_edit)
 
         # Dialog Button
