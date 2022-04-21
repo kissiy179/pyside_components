@@ -48,7 +48,7 @@ class FilePathEdit(QtWidgets.QWidget):
         self.line_edit = QtWidgets.QLineEdit()
         self.line_edit.textChanged.connect(self.textChanged)
         self.line_edit.editingFinished.connect(self.editingFinished)
-        self.line_edit.textChanged.connect(self.setStyleSheet)
+        self.line_edit.textChanged.connect(self.set_stylesheet)
         hlo.addWidget(self.line_edit)
 
         # Dialog Button
@@ -80,15 +80,25 @@ class FilePathEdit(QtWidgets.QWidget):
     def setText(self, text):
         self.line_edit.setText(text)
 
-    def setStyleSheet(self):
+    def set_stylesheet(self):
+        stylesheets = {}
         text = self.text()
+
+        # LineEdit
         line_edit_style = ''
 
         if not os.path.exists(text):
             line_edit_style += 'color: indianred;'
 
         self.line_edit.setStyleSheet(line_edit_style)
-        self.dialog_btn.setStyleSheet('background-color: transparent; border-style: solid; border-width:0px;')
+        stylesheets[self.line_edit] = line_edit_style
+
+        # Diaglog button
+        dialog_btn_style = 'background-color: transparent; border-style: solid; border-width:0px;'
+        self.dialog_btn.setStyleSheet(dialog_btn_style)
+        stylesheets[self.dialog_btn] = dialog_btn_style
+        return stylesheets
+
 
 class DirectoryPathEdit(FilePathEdit):
     '''
