@@ -34,6 +34,7 @@ class FilePathEdit(QtWidgets.QWidget):
     open_method = getOpenFileName
     textChanged = QtCore.Signal(str)
     editingFinished = QtCore.Signal()
+    current_dir = ''
     
     def __init__(self, *args, **kwargs):
         super(FilePathEdit, self).__init__(*args, **kwargs)
@@ -56,7 +57,8 @@ class FilePathEdit(QtWidgets.QWidget):
         hlo.addWidget(self.dialog_btn)
 
     def open_dialog(self):
-        crr_path = self.text()
+        text = self.text()
+        crr_path = text if os.path.exists(text) else self.current_dir
         crr_dir = os.path.dirname(crr_path) if os.path.isfile(crr_path) else crr_path
         kwargs = {
                 'dir': crr_dir,
