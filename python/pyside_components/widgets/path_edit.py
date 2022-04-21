@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import inspect
+from re import S
 from qtpy import QtWidgets, QtCore
 import qtawesome as qta
 
@@ -47,15 +48,15 @@ class FilePathEdit(QtWidgets.QWidget):
         self.line_edit = QtWidgets.QLineEdit()
         self.line_edit.textChanged.connect(self.textChanged)
         self.line_edit.editingFinished.connect(self.editingFinished)
+        self.line_edit.textChanged.connect(self.setStyleSheet)
         hlo.addWidget(self.line_edit)
 
         # Dialog Button
         self.dialog_btn = QtWidgets.QPushButton()
-        self.dialog_btn.setStyleSheet('background-color: transparent; border-style: solid; border-width:0px;')
         self.dialog_btn.setIcon(dir_icon)
         self.dialog_btn.clicked.connect(self.open_dialog)
         hlo.addWidget(self.dialog_btn)
-
+        
     def open_dialog(self):
         text = self.text()
         crr_path = text if os.path.exists(text) else self.current_dir
@@ -78,6 +79,16 @@ class FilePathEdit(QtWidgets.QWidget):
 
     def setText(self, text):
         self.line_edit.setText(text)
+
+    def setStyleSheet(self):
+        text = self.text()
+        line_edit_style = ''
+
+        if not os.path.exists(text):
+            line_edit_style += 'color: indianred;'
+
+        self.line_edit.setStyleSheet(line_edit_style)
+        self.dialog_btn.setStyleSheet('background-color: transparent; border-style: solid; border-width:0px;')
 
 class DirectoryPathEdit(FilePathEdit):
     '''
