@@ -3,6 +3,7 @@ import sys
 import codecs
 from qtpy import QtCore, QtGui, QtWidgets
 import qtawesome as qta
+from ..util import color
 from .text_editable_button import TextEditableButtonMixin
 from .removable_button import RemovableButtonMixin
 
@@ -79,7 +80,7 @@ class TagItemButton(RemovableButtonMixin, TextEditableButtonMixin, QtWidgets.QPu
 
     def set_style(self):
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        color = string_to_color(self.text())
+        color = color.string_to_color(self.text())
         color_str = 'rgb({},{},{})'.format(*color)
         style_ = tag_item_button_style.format(class_name=type(self).__name__, bg_color=color_str)
         self.style_ = '{}\n{}'.format(self.styleSheet(), style_)
