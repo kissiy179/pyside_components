@@ -1,7 +1,10 @@
 import sys
 import codecs
 
-def char_to_color(c):
+def char_to_num(c):
+    '''
+    文字からカラー用数値を取得
+    '''
     if sys.version.startswith('3'):
         hex_code = codecs.encode(bytes(c, 'utf-8'), 'hex-codec')
 
@@ -12,9 +15,12 @@ def char_to_color(c):
     return col_num
 
 def string_to_color(s, correction=40):
+    '''
+    文字列からカラー値を取得
+    '''
     s = s if s else 'z'
     s = s.ljust(3, '0')
-    color = [char_to_color(i) for i in s[:3]]
+    color = [char_to_num(i) for i in s[:3]]
     avg = sum(color) / len(color)
 
     if avg < correction:
@@ -31,3 +37,9 @@ def string_to_color(s, correction=40):
         color[minidx] = max(0, min_ - correction)
         
     return color
+
+def color_to_hextriplet(color):
+    '''
+    カラー値から16進数文字列を取得
+    '''
+    return '#' + ''.join('{:02X}'.format(i) for i in color)
