@@ -46,6 +46,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
         # LineEdit
         self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit.setClearButtonEnabled(True)
         self.line_edit.textChanged.connect(self.textChanged)
         self.line_edit.editingFinished.connect(self.editingFinished)
         self.line_edit.textChanged.connect(self.set_stylesheet)
