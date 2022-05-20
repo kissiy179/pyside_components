@@ -51,7 +51,7 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         super(TagItemButtnsEdit, self).__init__(parent)
         self.__tag_infos = tags
         self.init_ui()
-        self.updated.connect(self.init_ui)
+        self.updated.connect(self.show_tags)
 
     def clear_ui(self):
         '''
@@ -90,6 +90,7 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
             return
 
         self.__tag_infos[tag_name] = True
+        self.init_ui()
         self.updated.emit()
 
     def remove_tag(self, tag_name):
@@ -100,6 +101,7 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
             return
             
         del self.__tag_infos[tag_name]
+        self.updated.emit()
         
     def set_tag_enabled(self, tag_name, enabled):
         '''
@@ -109,6 +111,7 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
             return
             
         self.__tag_infos[tag_name] = enabled
+        self.updated.emit()
 
     def change_tag(self, old_tag_name, new_tag_name):
         '''
@@ -133,14 +136,22 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         タグ情報を設定
         '''
         self.__tag_infos = tags
+        self.init_ui()
         self.updated.emit()
 
-    def get_active_tag_names(self):
+    def get_enabled_tag_names(self):
         '''
         有効なタグ名を取得
         '''
         tag_names = [tag for tag, enabled in self.__tag_infos.items() if enabled]
         return sorted(tag_names)
+
+    def show_tags(self):
+        '''
+        タグを表示
+        '''
+        tags = self.get_enabled_tag_names()
+        print(tags)
 
 class TagEdit(QtWidgets.QWidget):
     '''
@@ -197,20 +208,13 @@ class TagEdit(QtWidgets.QWidget):
         '''
         tag_name = self.line_edit.text()
         self.tag_buttons_edit.add_tag(tag_name)
-        
-    def show_tags(self):
-        '''
-        タグを表示
-        '''
-        tags = self.get_active_tag_names()
-        print(tags)
-
+    
 
 '''
 import pyside_components; reload(pyside_components)
 from pyside_components.widgets.tag_edit import TagEdit
 
 tag_edit = TagEdit()
-tag_edit.set_tags({'animations': True, 'characters': False, 'rig': True})
+tag_edit.set_tag_infos({'animations': True, 'characters': False, 'rig': True})
 tag_edit.show()
 '''
