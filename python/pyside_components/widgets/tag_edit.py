@@ -30,14 +30,12 @@ class LineEditForAddingTag(TemporaryLineEdit):
 
 class TagButtonsEdit(QtWidgets.QWidget):
 
-    __buttons = []
-
     def __init__(self, tags, parent=None):
         super(TagButtonsEdit, self).__init__(parent)
         self.init_ui()
 
     def clear_ui(self):
-        del self.__buttons[:]
+        # del self.__buttons[:]
         dmy_wgt = QtWidgets.QWidget()
         dmy_wgt.setLayout(self.layout())
         del dmy_wgt
@@ -52,17 +50,21 @@ class TagButtonsEdit(QtWidgets.QWidget):
         tags = parent.get_tags()
 
         for tag_name, enabled in sorted(tags.items()):
-            btn = TagItemButton(tag_name)
+            btn = TagItemButton(tag_name, self)
             btn.setObjectName(tag_name)
-            btn.setChecked(not enabled)
+            btn.setChecked(enabled)
             btn.toggled.connect(partial(parent.set_tag_enabled, tag_name))
+            # btn.toggled.connect(parent.log)
             btn.closed.connect(partial(parent.remove_tag, tag_name))
             # btn.text_changed.connect(partial(parent.change_tag, tag_name))
             self.lo.addWidget(btn)#, QtCore.Qt.AlignLeft)
-            self.__buttons.append(btn)
+            # self.__buttons.append(btn)
 
 class TagEdit(QtWidgets.QWidget):
-
+    '''
+    複数タグを扱うウィジェット
+    タグの追加、削除、ON/OFFが可能
+    '''
     __tags = {}
     __tag_buttons = []
     updated = QtCore.Signal()
@@ -71,24 +73,6 @@ class TagEdit(QtWidgets.QWidget):
         super(TagEdit, self).__init__(parent)
         self.init_ui()
         self.updated.connect(self.update_tag_buttons)
-        self.updated.connect(self.log)
-
-    def log(self):
-        print(self.__tags)
-
-    def clear_data(self):
-        tags = dict(self.__tags)
-
-        for btn in self.__tag_buttons:
-            btn.close()
-
-        self.__tags = tags
-        self.__tag_buttons = []
-
-    def clear_ui(self):
-        dmy_wgt = QtWidgets.QWidget()
-        dmy_wgt.setLayout(self.layout())
-        del dmy_wgt
 
     def init_ui(self):
         hlo = QtWidgets.QHBoxLayout()
@@ -126,23 +110,21 @@ class TagEdit(QtWidgets.QWidget):
             return
             
         del self.__tags[tag_name]
-        self.updated.emit()
+        # self.updated.emit()
         
     def set_tag_enabled(self, tag_name, enabled):
-        print(tag_name, enabled)
         if not tag_name in self.__tags.keys():
             return
             
         self.__tags[tag_name] = enabled
-        self.updated.emit()
 
     def change_tag(self, old_tag_name, new_tag_name):
         if not old_tag_name in self.__tags or new_tag_name in self.__tags:
             return
 
-        checked = self.__tags.get(old_tag_name, True)
+        enabled = self.__tags.get(old_tag_name, True)
         del self.__tags[old_tag_name]
-        self.__tags[new_tag_name] = checked
+        self.__tags[new_tag_name] = enabled
         self.updated.emit()
 
     def get_tags(self):
