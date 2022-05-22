@@ -6,4 +6,5 @@ except:
 
 from . import layouts; reload(layouts)
 from . import models; reload(models)
+from . import views; reload(views)
 from . import widgets; reload(widgets)
