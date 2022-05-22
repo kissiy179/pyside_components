@@ -5,4 +5,5 @@ except:
     pass
 
 from . import layouts; reload(layouts)
+from . import models; reload(models)
 from . import widgets; reload(widgets)
