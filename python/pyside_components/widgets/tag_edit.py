@@ -51,7 +51,6 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         super(TagItemButtnsEdit, self).__init__(parent)
         self.__tag_infos = tags
         self.init_ui()
-        self.updated.connect(self.show_tags)
 
     def clear_ui(self):
         '''
