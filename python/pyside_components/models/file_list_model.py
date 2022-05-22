@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import re
-from mayaqt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 class FileListModel(QtGui.QStandardItemModel):
 
