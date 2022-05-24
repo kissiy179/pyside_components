@@ -5,18 +5,31 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 class FileListModel(QtGui.QStandardItemModel):
 
-    def __init__(self, root_dir_path='', file_paths=(), filters=(), parent=None):
+    __root_dir_path = ''
+    __file_paths = []
+    __filters = []
+    __compiled_filter = None
+
+    def __init__(self, root_dir_path='', filters=(), parent=None):
         super(FileListModel, self).__init__(parent)
+        self.set_root_path(root_dir_path, build=False)
+        self.set_filters(filters, build=True)
 
-        if file_paths:
-            self.__file_paths = file_paths
+    def set_root_path(self, root_dir_path, build=True):
+        self.__root_dir_path = root_dir_path
+        self.__file_paths = self.get_file_paths_recursive(self.__root_dir_path)
 
-        elif root_dir_path:
-            self.__file_paths = self.get_file_paths(root_dir_path)
+        if build:
+            self.build_items(self.__file_paths, self.__compiled_filter)
 
-        self.build_items(self.__file_paths, filters)
+    def set_filters(self, filters, build=True):
+        self.__filters = filters
+        self.__compiled_filter = self.get_compiled_filter(self.__filters)
 
-    def get_file_paths(self, root_dir_path):
+        if build:
+            self.build_items(self.__file_paths, self.__compiled_filter)
+
+    def get_file_paths_recursive(self, root_dir_path):
         file_paths = []
 
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
@@ -26,7 +39,7 @@ class FileListModel(QtGui.QStandardItemModel):
 
         return file_paths
 
-    def get_compiled_filters(self, filters=()):
+    def get_compiled_filter(self, filters=()):
         # フィルタを拡張子と通常のものに分離
         ext_filter_txts = [filter_ for filter_ in filters if filter_.startswith('.')]
         normal_filter_txts = [filter_ for filter_ in filters if not filter_.startswith('.')]
@@ -55,19 +68,21 @@ class FileListModel(QtGui.QStandardItemModel):
 
         #  パターンを結合
         filters_pattern_txt = '^({}){}.*$'.format(ext_filters_pattern_txt, normal_filters_pattern_txt)
+        print(filters_pattern_txt)
         filters_pattern = re.compile(filters_pattern_txt)
         return filters_pattern
 
-    def build_items(self, file_paths, filters=()):
+    def build_items(self, file_paths, compiled_filter=()):
+        self.clear()
         rootItem = self.invisibleRootItem()
-        pattern = self.get_compiled_filters(filters)
         provider = QtWidgets.QFileIconProvider()
 
         for file_path in file_paths:
-            m = pattern.match(file_path)
+            if self.__compiled_filter:
+                m = compiled_filter.match(file_path)
 
-            if not m:
-                continue
+                if not m:
+                    continue
 
             icon = provider.icon(file_path)
             dir_path = os.path.dirname(file_path)
