@@ -70,12 +70,13 @@ class FileListModel(QtGui.QStandardItemModel):
 
     def filter(self, filters=()):
         self.clear()
-        normal_filters = [FileInfo.file_path.like('%{}'.format(f)) for f in filters if not f.startswith('.')]
-        ext_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if f.startswith('.')]
+        ext_filters = [FileInfo.extention.like('%{}'.format(f)) for f in filters if f.startswith('.')]
+        normal_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if not f.startswith('.')]
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
         query = session.query(FileInfo).filter(
-            or_(*normal_filters),
+            and_(*normal_filters),
+            or_(*ext_filters)
         ).all()
 
         root_item = self.invisibleRootItem()
