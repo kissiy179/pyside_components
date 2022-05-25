@@ -12,6 +12,7 @@ from sqlalchemy.sql import text, select, and_, or_, not_
 
 # from sqlalchemy_views import CreateView, DropView
 Base = declarative_base()
+echo = False
 
 class FileInfo(Base):
     '''
@@ -38,13 +39,15 @@ class FileListModel(QtGui.QStandardItemModel):
     def set_root_path(self, root_dir_path):
         self.__root_dir_path = root_dir_path
         self.build_data(self.__root_dir_path)
+        # self.appendRow(QtGui.QStandardItem('--- no files ---'))
 
     def set_filters(self, filters):
         self.__filters = filters
         self.filter(self.__filters)
 
     def build_data(self, root_dir_path):
-        self.__engine = create_engine('sqlite:///:memory:')#, echo=True)
+        self.__engine = create_engine('sqlite:///:memory:', echo=echo)
+        # self.__engine = create_engine(r'sqlite:///D:\projects\ragna\RagnaSourceAssets\Data\AssetInfos3.db', echo=echo)
         Base.metadata.create_all(self.__engine)
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
@@ -65,23 +68,46 @@ class FileListModel(QtGui.QStandardItemModel):
                     print(e)
 
         session.commit()
-        session.close()
+        # session.close()
         print('end build')
 
     def filter(self, filters=()):
         self.clear()
-        ext_filters = [FileInfo.extention.like('%{}'.format(f)) for f in filters if f.startswith('.')]
-        normal_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if not f.startswith('.')]
+        ext_filters = []
+        normal_filters = []
+
+        for f in filters:
+            if f.startswith('!'): #否定がうまくいってない
+                if f.startswith('.'):
+                    f_ = not_(FileInfo.extention.like('%{}'.format(f)))
+                    ext_filters.append(f_)
+
+                else:
+                    f_ = not_(FileInfo.file_path.like('%{}%'.format(f)))
+                    normal_filters.append(f_)
+            else:
+                if f.startswith('.'):
+                    f_ = FileInfo.extention.like('%{}'.format(f))
+                    ext_filters.append(f_)
+
+                else:
+                    f_ = FileInfo.file_path.like('%{}%'.format(f))
+                    normal_filters.append(f_)
+
+        # ext_filters = [FileInfo.extention.like('%{}'.format(f)) for f in filters if f.startswith('.')]
+        # normal_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if not f.startswith('.')]
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
         query = session.query(FileInfo).filter(
-            and_(*normal_filters),
-            or_(*ext_filters)
+            # or_(
+                and_(*normal_filters),
+                or_(*ext_filters)
+            # )
         ).all()
 
         root_item = self.invisibleRootItem()
         provider = QtWidgets.QFileIconProvider()
-        
+
         for row in query:
             file_path = row.file_path
             icon = provider.icon(file_path)
@@ -92,6 +118,6 @@ class FileListModel(QtGui.QStandardItemModel):
             file_item.setIcon(icon)
             root_item.appendRow([file_item, dir_item])
 
-        session.commit()
-        session.close()
+        # session.commit()
+        # session.close()
         print('end filters', filters)
