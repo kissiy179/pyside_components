@@ -2,6 +2,25 @@
 import os
 import re
 from qtpy import QtCore, QtGui, QtWidgets
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.schema import Column, Table, MetaData
+from sqlalchemy.types import Integer, String, Boolean
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import text, select, and_, or_, not_
+
+# from sqlalchemy_views import CreateView, DropView
+Base = declarative_base()
+
+class FileInfo(Base):
+    '''
+    ファイルパスを格納するテーブル
+    '''
+    __tablename__ = "file_infos"  # テーブル名を指定
+    id = Column(Integer, primary_key=True)
+    file_path = Column(String(255))
+    extention = Column(String(255))
 
 class FileListModel(QtGui.QStandardItemModel):
 
@@ -9,85 +28,69 @@ class FileListModel(QtGui.QStandardItemModel):
     __file_paths = []
     __filters = []
     __compiled_filter = None
+    __engine = None
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
         super(FileListModel, self).__init__(parent)
-        self.set_root_path(root_dir_path, build=False)
-        self.set_filters(filters, build=True)
+        self.set_root_path(root_dir_path)
+        self.set_filters(filters)
 
-    def set_root_path(self, root_dir_path, build=True):
+    def set_root_path(self, root_dir_path):
         self.__root_dir_path = root_dir_path
-        self.__file_paths = self.get_file_paths_recursive(self.__root_dir_path)
+        self.build_data(self.__root_dir_path)
 
-        if build:
-            self.build_items(self.__file_paths, self.__compiled_filter)
-
-    def set_filters(self, filters, build=True):
+    def set_filters(self, filters):
         self.__filters = filters
-        self.__compiled_filter = self.get_compiled_filter(self.__filters)
+        self.filter(self.__filters)
 
-        if build:
-            self.build_items(self.__file_paths, self.__compiled_filter)
-
-    def get_file_paths_recursive(self, root_dir_path):
-        file_paths = []
+    def build_data(self, root_dir_path):
+        self.__engine = create_engine('sqlite:///:memory:')#, echo=True)
+        Base.metadata.create_all(self.__engine)
+        SessionClass = sessionmaker(bind=self.__engine)
+        session = SessionClass()
 
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
-                file_paths.append(file_path)
+                file_path_, ext = os.path.splitext(file_path)
+                file_info = FileInfo(
+                    file_path = file_path,
+                    extention = ext,
+                )
 
-        return file_paths
+                try:
+                    session.add(file_info)
 
-    def get_compiled_filter(self, filters=()):
-        # フィルタを拡張子と通常のものに分離
-        ext_filter_txts = [filter_ for filter_ in filters if filter_.startswith('.')]
-        normal_filter_txts = [filter_ for filter_ in filters if not filter_.startswith('.')]
-        ext_filter_pattern_txts = []
-        normal_filter_pattern_txts = []
+                except Exception as e:
+                    print(e)
 
-        # 拡張子の場合
-        for filter_txt in ext_filter_txts:
-            filter_pattern_txt = r'(?=.*\{}$)'.format(filter_txt)
-            ext_filter_pattern_txts.append(filter_pattern_txt)
+        session.commit()
+        session.close()
+        print('end build')
 
-        ext_filters_pattern_txt = '|'.join(ext_filter_pattern_txts)
-
-        # 通常の場合
-        for filter_txt in normal_filter_txts:
-            pattern_template = '(?=.*{})'
-
-            if filter_txt.startswith('!'):
-                filter_txt = filter_txt.strip('!')
-                pattern_template = '(?!.*{})'
-
-            filter_pattern_txt = pattern_template.format(filter_txt)
-            normal_filter_pattern_txts.append(filter_pattern_txt)
-
-        normal_filters_pattern_txt = ''.join(normal_filter_pattern_txts)
-
-        #  パターンを結合
-        filters_pattern_txt = '^({}){}.*$'.format(ext_filters_pattern_txt, normal_filters_pattern_txt)
-        print(filters_pattern_txt)
-        filters_pattern = re.compile(filters_pattern_txt)
-        return filters_pattern
-
-    def build_items(self, file_paths, compiled_filter=()):
+    def filter(self, filters=()):
         self.clear()
-        rootItem = self.invisibleRootItem()
+        normal_filters = [FileInfo.file_path.like('%{}'.format(f)) for f in filters if not f.startswith('.')]
+        ext_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if f.startswith('.')]
+        SessionClass = sessionmaker(bind=self.__engine)
+        session = SessionClass()
+        query = session.query(FileInfo).filter(
+            or_(*normal_filters),
+        ).all()
+
+        root_item = self.invisibleRootItem()
         provider = QtWidgets.QFileIconProvider()
-
-        for file_path in file_paths:
-            if self.__compiled_filter:
-                m = compiled_filter.match(file_path)
-
-                if not m:
-                    continue
-
+        
+        for row in query:
+            file_path = row.file_path
             icon = provider.icon(file_path)
             dir_path = os.path.dirname(file_path)
             file_name = os.path.basename(file_path)
             dir_item = QtGui.QStandardItem(dir_path)
             file_item = QtGui.QStandardItem(file_name)
             file_item.setIcon(icon)
-            rootItem.appendRow([file_item, dir_item])
+            root_item.appendRow([file_item, dir_item])
+
+        session.commit()
+        session.close()
+        print('end filters', filters)
