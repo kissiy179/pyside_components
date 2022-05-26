@@ -36,6 +36,9 @@ class FileListModel(QtGui.QStandardItemModel):
         self.set_root_path(root_dir_path)
         self.set_filters(filters)
 
+    def set_header(self):
+        self.setHorizontalHeaderLabels(['File Name', 'Directory Path'])
+
     def set_root_path(self, root_dir_path):
         self.__root_dir_path = root_dir_path
         self.build_data(self.__root_dir_path)
@@ -69,7 +72,6 @@ class FileListModel(QtGui.QStandardItemModel):
 
         session.commit()
         # session.close()
-        print('end build')
 
     def filter(self, filters=()):
         self.clear()
@@ -94,8 +96,6 @@ class FileListModel(QtGui.QStandardItemModel):
                     f_ = FileInfo.file_path.like('%{}%'.format(f))
                     normal_filters.append(f_)
 
-        # ext_filters = [FileInfo.extention.like('%{}'.format(f)) for f in filters if f.startswith('.')]
-        # normal_filters = [FileInfo.file_path.like('%{}%'.format(f)) for f in filters if not f.startswith('.')]
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
         query = session.query(FileInfo).filter(
@@ -108,16 +108,23 @@ class FileListModel(QtGui.QStandardItemModel):
         root_item = self.invisibleRootItem()
         provider = QtWidgets.QFileIconProvider()
 
-        for row in query:
-            file_path = row.file_path
-            icon = provider.icon(file_path)
-            dir_path = os.path.dirname(file_path)
-            file_name = os.path.basename(file_path)
-            dir_item = QtGui.QStandardItem(dir_path)
-            file_item = QtGui.QStandardItem(file_name)
-            file_item.setIcon(icon)
-            root_item.appendRow([file_item, dir_item])
+        if len(query) == 0:
+            file_item = QtGui.QStandardItem('--- No Files ---')
+            dir_item = QtGui.QStandardItem('')
+            self.appendRow([file_item, dir_item])
+
+        else:
+            for row in query:
+                file_path = row.file_path
+                icon = provider.icon(file_path)
+                dir_path = os.path.dirname(file_path)
+                file_name = os.path.basename(file_path)
+                dir_item = QtGui.QStandardItem(dir_path)
+                file_item = QtGui.QStandardItem(file_name)
+                file_item.setIcon(icon)
+                root_item.appendRow([file_item, dir_item])
+
+        self.set_header()
 
         # session.commit()
         # session.close()
-        print('end filters', filters)
