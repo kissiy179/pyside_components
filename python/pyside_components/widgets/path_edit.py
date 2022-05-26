@@ -46,6 +46,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
         # LineEdit
         self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.line_edit.setClearButtonEnabled(True)
         self.line_edit.textChanged.connect(self.textChanged)
         self.line_edit.editingFinished.connect(self.editingFinished)
@@ -83,6 +84,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
     def setText(self, text):
         self.line_edit.setText(text)
+        self.editingFinished.emit()
 
     def set_stylesheet(self):
         stylesheets = {}
