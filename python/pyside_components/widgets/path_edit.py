@@ -57,6 +57,9 @@ class FilePathEdit(QtWidgets.QWidget):
         self.dialog_btn.setIcon(dir_icon)
         self.dialog_btn.clicked.connect(self.open_dialog)
         hlo.addWidget(self.dialog_btn)
+
+        # stylesheet
+        self.set_stylesheet()
         
     def open_dialog(self):
         text = self.text()
