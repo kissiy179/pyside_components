@@ -16,6 +16,7 @@ class FileListView(QtWidgets.QWidget):
 
         # view
         self.view = QtWidgets.QTreeView()
+        self.view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.lo.addWidget(self.view)
 
     def __getattr__(self, attrname):

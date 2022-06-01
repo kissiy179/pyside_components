@@ -124,43 +124,13 @@ class FileListModel(QtGui.QStringListModel):
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
         super(FileListModel, self).__init__(parent)
-        # self.set_header()
         self.__db = FileListDB(root_dir_path, filters)
 
     def __getattr__(self, attrname):
         attr = getattr(self.__db, attrname)
         return attr
 
-    # def set_header(self):
-    #     # self.setHorizontalHeaderLabels(['File Name', 'Directory Path'])
-    #     # self.setHorizontalHeaderLabels(['File Path'])
-    #     self.setColumnCount(1)
-    #     self.setHeaderData(0, QtCore.Qt.Horizontal, 'File Path')
-
     def set_filters(self, filters):
         self.__db.set_filters(filters)
         file_paths = self.__db.get_result()
         self.setStringList(file_paths)
-
-        return
-        root_item = self.invisibleRootItem()
-        provider = QtWidgets.QFileIconProvider()
-
-        if len(file_paths) == 0:
-            file_item = QtGui.QStandardItem('--- No Files ---')
-            dir_item = QtGui.QStandardItem('')
-            self.appendRow([file_item, dir_item])
-
-        else:
-            for file_path in file_paths:
-                icon = provider.icon(file_path)
-                dir_path = os.path.dirname(file_path)
-                file_name = os.path.basename(file_path)
-                dir_item = QtGui.QStandardItem(dir_path)
-                file_item = QtGui.QStandardItem(file_name)
-                file_item.setIcon(icon)
-                root_item.appendRow([file_item, dir_item])
-
-        self.set_header()
-
-
