@@ -23,34 +23,40 @@ class FileInfo(Base):
     file_path = Column(String(255))
     extention = Column(String(255))
 
-class FileListModel(QtGui.QStandardItemModel):
-
+class FileListDB(object):
+    '''
+    ルートディレクトリ以下のすべてのファイルパスを扱うDBクラス
+    '''
     __root_dir_path = ''
-    __file_paths = []
     __filters = []
-    __compiled_filter = None
+    __result = []
     __engine = None
 
-    def __init__(self, root_dir_path='', filters=(), parent=None):
-        super(FileListModel, self).__init__(parent)
+    def __init__(self, root_dir_path='', filters=()):
+        super(FileListDB, self).__init__()
         self.set_root_path(root_dir_path)
         self.set_filters(filters)
 
-    def set_header(self):
-        self.setHorizontalHeaderLabels(['File Name', 'Directory Path'])
+    def get_root_path(self):
+        return self.__root_dir_path
 
     def set_root_path(self, root_dir_path):
+        root_dir_path = root_dir_path.replace(os.altsep, os.sep)
         self.__root_dir_path = root_dir_path
-        self.build_data(self.__root_dir_path)
-        # self.appendRow(QtGui.QStandardItem('--- no files ---'))
+        self.build(self.__root_dir_path)
+        
+    def get_filters(self):
+        return self.__filters
 
     def set_filters(self, filters):
         self.__filters = filters
         self.filter(self.__filters)
 
-    def build_data(self, root_dir_path):
+    def get_result(self):
+        return self.__result
+
+    def build(self, root_dir_path):
         self.__engine = create_engine('sqlite:///:memory:', echo=echo)
-        # self.__engine = create_engine(r'sqlite:///D:\projects\ragna\RagnaSourceAssets\Data\AssetInfos3.db', echo=echo)
         Base.metadata.create_all(self.__engine)
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
@@ -71,15 +77,16 @@ class FileListModel(QtGui.QStandardItemModel):
                     print(e)
 
         session.commit()
-        # session.close()
+        session.close()
 
     def filter(self, filters=()):
-        self.clear()
         ext_filters = []
         normal_filters = []
 
         for f in filters:
-            if f.startswith('!'): #否定がうまくいってない
+            if f.startswith('!'):
+                f = f.strip('!')
+
                 if f.startswith('.'):
                     f_ = not_(FileInfo.extention.like('%{}'.format(f)))
                     ext_filters.append(f_)
@@ -99,23 +106,53 @@ class FileListModel(QtGui.QStandardItemModel):
         SessionClass = sessionmaker(bind=self.__engine)
         session = SessionClass()
         query = session.query(FileInfo).filter(
-            # or_(
-                and_(*normal_filters),
-                or_(*ext_filters)
-            # )
+            and_(*normal_filters),
+            or_(*ext_filters)
         ).all()
 
+        self.__result = [row.file_path for row in query]
+        session.commit()
+        session.close()
+
+# class FileListModel(QtGui.QStandardItemModel):
+class FileListModel(QtGui.QStringListModel):
+
+    __root_dir_path = ''
+    __filters = []
+    __engine = None
+    __db = None
+
+    def __init__(self, root_dir_path='', filters=(), parent=None):
+        super(FileListModel, self).__init__(parent)
+        # self.set_header()
+        self.__db = FileListDB(root_dir_path, filters)
+
+    def __getattr__(self, attrname):
+        attr = getattr(self.__db, attrname)
+        return attr
+
+    # def set_header(self):
+    #     # self.setHorizontalHeaderLabels(['File Name', 'Directory Path'])
+    #     # self.setHorizontalHeaderLabels(['File Path'])
+    #     self.setColumnCount(1)
+    #     self.setHeaderData(0, QtCore.Qt.Horizontal, 'File Path')
+
+    def set_filters(self, filters):
+        self.__db.set_filters(filters)
+        file_paths = self.__db.get_result()
+        self.setStringList(file_paths)
+
+        return
         root_item = self.invisibleRootItem()
         provider = QtWidgets.QFileIconProvider()
 
-        if len(query) == 0:
+        if len(file_paths) == 0:
             file_item = QtGui.QStandardItem('--- No Files ---')
             dir_item = QtGui.QStandardItem('')
             self.appendRow([file_item, dir_item])
 
         else:
-            for row in query:
-                file_path = row.file_path
+            for file_path in file_paths:
                 icon = provider.icon(file_path)
                 dir_path = os.path.dirname(file_path)
                 file_name = os.path.basename(file_path)
@@ -126,5 +163,4 @@ class FileListModel(QtGui.QStandardItemModel):
 
         self.set_header()
 
-        # session.commit()
-        # session.close()
+
