@@ -14,6 +14,26 @@ from sqlalchemy.sql import text, select, and_, or_, not_
 Base = declarative_base()
 echo = False
 
+class ProgressBar(QtWidgets.QProgressBar):
+
+    __idx = 0
+    app = QtWidgets.QApplication
+
+    def __init__(self, maximum, parent=None):
+        super(ProgressBar, self).__init__(parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setWindowFlags(QtCore.Qt.Popup)
+        self.setMaximum(maximum)
+        self.move(QtGui.QCursor().pos())
+
+    def increment(self):
+        self.__idx += 1
+        self.setValue(self.__idx)
+        self.app.processEvents()
+
+        if self.__idx > self.maximum():
+            self.close()
+
 class FileInfo(Base):
     '''
     ファイルパスを格納するテーブル
@@ -71,12 +91,9 @@ class FileListDB(object):
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
-
                 file_paths.append(file_path)
 
-        app = QtWidgets.QApplication
-        prog = QtWidgets.QProgressDialog('Search files...', None, 0, len(file_paths), None, 0)
-        prog.setWindowFlags(QtCore.Qt.Popup)
+        prog = ProgressBar(len(file_paths))
         prog.show()
 
         for i, file_path in enumerate(file_paths):
@@ -85,8 +102,7 @@ class FileListDB(object):
                 file_path = file_path,
                 extention = ext,
             )
-            prog.setValue(i)
-            app.processEvents()
+            prog.increment()
 
             try:
                 self.__session.add(file_info)
@@ -126,14 +142,14 @@ class FileListDB(object):
         query = self.__session.query(FileInfo).filter(
             and_(*normal_filters),
             or_(*ext_filters)
-        ).all()
+        ).yield_per(10)
 
         self.__result = [row.file_path for row in query]
         # self.__session.commit()
         # self.__session.close()
 
 # class FileListModel(QtGui.QStandardItemModel):
-class FileListModel(QtGui.QStringListModel):
+class FileListModel(QtCore.QStringListModel):
 
     __root_dir_path = ''
     __filters = []
