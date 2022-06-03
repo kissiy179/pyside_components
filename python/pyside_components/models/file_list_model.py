@@ -176,18 +176,21 @@ class FileListModel(QtCore.QStringListModel):
     ファイルリストを扱うモデル
     '''
     __db = None
+    __file_paths = []
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
         super(FileListModel, self).__init__(parent)
         self.__db = FileListDB(root_dir_path, filters)
-        file_paths = self.__db.get_result()
-        self.setStringList(file_paths)
+        self.update()
 
     def __getattr__(self, attrname):
         attr = getattr(self.__db, attrname)
         return attr
 
+    def update(self):
+        self.__file_paths = self.__db.get_result()
+        self.setStringList(self.__file_paths)
+
     def set_filters(self, filters):
         self.__db.set_filters(filters)
-        file_paths = self.__db.get_result()
-        self.setStringList(file_paths)
+        self.update()
