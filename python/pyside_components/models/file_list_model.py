@@ -15,6 +15,9 @@ Base = declarative_base()
 echo = False
 
 class ProgressBar(QtWidgets.QProgressBar):
+    '''
+    プログレスバー
+    '''
 
     __idx = 0
     app = QtWidgets.QApplication
@@ -46,6 +49,7 @@ class FileInfo(Base):
 class FileListDB(object):
     '''
     ルートディレクトリ以下のすべてのファイルパスを扱うDBクラス
+    DBから取得したデータはget_resultで取り出す
     '''
     __root_dir_path = ''
     __filters = []
@@ -62,6 +66,10 @@ class FileListDB(object):
         return self.__root_dir_path
 
     def set_root_path(self, root_dir_path):
+        '''
+        ルートディレクトリパスを指定する
+        パス指定と同時にDBビルドする
+        '''
         root_dir_path = root_dir_path.replace(os.altsep, os.sep)
         self.__root_dir_path = root_dir_path
         self.build(self.__root_dir_path)
@@ -70,13 +78,24 @@ class FileListDB(object):
         return self.__filters
 
     def set_filters(self, filters):
+        '''
+        フィルタを設定する
+        DBにフィルタを適用してresultを更新する
+        '''
         self.__filters = filters
         self.filter(self.__filters)
 
     def get_result(self):
+        '''
+        DBから取得した結果を取得する
+        '''
         return self.__result
 
     def build(self, root_dir_path):
+        '''
+        DBをビルドする
+        ルートディレクトリ以下のすべてのファイルを登録する
+        '''
         # if self.__session:
         #     self.__session.close()
             # self.__session.dispose()
@@ -114,6 +133,9 @@ class FileListDB(object):
         # self.__session.close()
 
     def filter(self, filters=()):
+        '''
+        DBにフィルタを適用してresultを更新する
+        '''
         ext_filters = []
         normal_filters = []
 
@@ -150,10 +172,9 @@ class FileListDB(object):
 
 # class FileListModel(QtGui.QStandardItemModel):
 class FileListModel(QtCore.QStringListModel):
-
-    __root_dir_path = ''
-    __filters = []
-    __engine = None
+    '''
+    ファイルリストを扱うモデル
+    '''
     __db = None
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
