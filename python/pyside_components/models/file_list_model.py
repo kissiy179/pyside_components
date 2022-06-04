@@ -174,17 +174,18 @@ class FileListDB(object):
 class FileItem(object):
 
     def __init__(self, path):
-        self.path = path
-        self.dir_path = os.path.dirname(self.path)
-        self.name = os.path.basename(self.path)
-        # self.__dir_path = os.path.dirname(self.__path)
-        # self.__base_name = os.path.basename(self.__path)
+        self.__path = path
+        self.__dir_path = os.path.dirname(self.__path)
+        self.__name = os.path.basename(self.__path)
+
+    def get_path(self):
+        return self.__path
 
     def get_dir_path(self):
         return self.__dir_path
 
     def get_name(self):
-        return self.__base_name        
+        return self.__name        
 
 class FileListModel(QtCore.QAbstractItemModel):
     '''
@@ -209,6 +210,7 @@ class FileListModel(QtCore.QAbstractItemModel):
         for file_path in file_paths:
             self.__items.append(FileItem(file_path))
 
+        # モデルがリセットされていることを通知する
         self.modelReset.emit()
 
     def set_root_path(self, root_dir_path):
@@ -243,15 +245,30 @@ class FileListModel(QtCore.QAbstractItemModel):
 
         item = index.internalPointer()  
 
-        if index.column() == 0:
-            if role == QtCore.Qt.DisplayRole:
-                return item.name
+        if role == QtCore.Qt.DisplayRole:
+            if index.column() == 0:
+                return item.get_name()
 
-            elif role == QtCore.Qt.DecorationRole:
-                return provider.icon(item.path)
+            else:
+                return item.get_dir_path()
+
+        elif role == QtCore.Qt.DecorationRole:
+            if index.column() == 0:
+                return provider.icon(item.get_path())
+
+
+    def headerData(self, section, orientation, role):
+        if orientation == QtCore.Qt.Horizontal:
+            if role == QtCore.Qt.DisplayRole:
+                if section == 0:
+                    return 'File Name'
+
+                else:
+                    return 'Directory Path'
 
         else:
             if role == QtCore.Qt.DisplayRole:
-                return item.dir_path
+                return section
 
+        return None
 
