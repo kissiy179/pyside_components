@@ -203,10 +203,13 @@ class FileListModel(QtCore.QAbstractItemModel):
         return attr
 
     def build(self):
+        del self.__items[:]
         file_paths =self.__db.get_result()
 
         for file_path in file_paths:
             self.__items.append(FileItem(file_path))
+
+        self.modelReset.emit()
 
     def set_root_path(self, root_dir_path):
         self.__db.set_root_path(root_dir_path)
