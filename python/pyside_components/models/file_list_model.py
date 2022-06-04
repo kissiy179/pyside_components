@@ -13,7 +13,7 @@ from sqlalchemy.sql import text, select, and_, or_, not_
 # from sqlalchemy_views import CreateView, DropView
 Base = declarative_base()
 echo = False
-provider = QtWidgets.QFileIconProvider()
+icon_provider = QtWidgets.QFileIconProvider()
 
 class ProgressBar(QtWidgets.QProgressBar):
     '''
@@ -132,29 +132,36 @@ class FileListDB(object):
         '''
         DBにフィルタを適用してresultを更新する
         '''
+        # 拡張子用/通常テキスト用フィルタ関数リスト
         ext_filters = []
         normal_filters = []
 
-        for f in filters:
-            if f.startswith('!'):
-                f = f.strip('!')
+        # フィルタ文字列からフィルタ関数を作成しリストに登録
+        for filter_ in filters:
+            is_not = False
+            target_filters = normal_filters
 
-                if f.startswith('.'):
-                    f_ = not_(FileInfo.extention.like('%{}'.format(f)))
-                    ext_filters.append(f_)
+            # 「!」で始まる場合否定として扱う
+            if filter_.startswith('!'):
+                is_not = True
+                filter_ = filter_.strip('!') # 「!」を除外
 
-                else:
-                    f_ = not_(FileInfo.file_path.like('%{}%'.format(f)))
-                    normal_filters.append(f_)
+            # 「.」で始まる場合拡張子用
+            if filter_.startswith('.'):
+                filter_fiunc = FileInfo.extention.like('%{}'.format(filter_))
+                target_filters = ext_filters
+
             else:
-                if f.startswith('.'):
-                    f_ = FileInfo.extention.like('%{}'.format(f))
-                    ext_filters.append(f_)
+                filter_fiunc = FileInfo.file_path.like('%{}%'.format(filter_))
 
-                else:
-                    f_ = FileInfo.file_path.like('%{}%'.format(f))
-                    normal_filters.append(f_)
+            # 関数の否定化
+            if is_not:
+                filter_fiunc = not_(filter_fiunc)
+                
+            # リストに登録
+            target_filters.append(filter_fiunc)
 
+        # SQLに問い合わせ
         query = self.__session.query(FileInfo).filter(
             and_(*normal_filters),
             or_(*ext_filters)
@@ -163,8 +170,13 @@ class FileListDB(object):
         self.__result = [row.file_path for row in query]
 
 class FileItem(object):
-
+    '''
+    ファイルアイテムを扱うクラス
+    '''
+    # ヘッダーリスト
     __headers = ['Idx', 'File Name', 'Directory Path', 'Extension']
+
+    # {ヘッダー: インデックス} という形式のdict
     __header_idx_table = {value: idx for idx, value in enumerate(__headers)}
 
     def __init__(self, path):
@@ -176,6 +188,7 @@ class FileItem(object):
         row = index.row()
         column = index.column()
 
+        # 表示文字
         if role == QtCore.Qt.DisplayRole:
             if column == self.__header_idx_table.get('Idx'):
                 return row
@@ -189,6 +202,7 @@ class FileItem(object):
             elif column == self.__header_idx_table.get('Extension'):
                 return os.path.splitext(self.__name)[-1]
 
+        # 背景色
         elif role == QtCore.Qt.BackgroundRole:
             if row % 2:
                 return QtGui.QColor('#333')
@@ -196,9 +210,14 @@ class FileItem(object):
             else:
                 return QtGui.QColor('#3a3a3a')
 
+        # アイコン
         elif role == QtCore.Qt.DecorationRole:
             if column == self.__headers.index('File Name'):
-                return provider.icon(self.__path)
+                return icon_provider.icon(self.__path)
+
+        # 行のサイズ
+        # elif role == QtCore.Qt.SizeHintRole:
+        #     return QtCore.QSize(28, 28)
                 
     @classmethod
     def columnCount(cls):
@@ -243,11 +262,12 @@ class DummyItem(object):
 
         elif role == QtCore.Qt.DecorationRole:
             if col == 0:
-                return provider.icon(self.path)
+                return icon_provider.icon(self.path)
 
 class FileListModel(QtCore.QAbstractItemModel):
     '''
     ファイルリストを扱うモデル
+    多くのメソッドは__item_classで指定したクラスに移譲する
     '''
     __db = None
     __item_class = FileItem
@@ -259,10 +279,16 @@ class FileListModel(QtCore.QAbstractItemModel):
         self.build()
 
     def __getattr__(self, attrname):
+        '''
+        アトリビュートが見つからない場合DBクラスの同名アトリビュートを取得
+        '''
         attr = getattr(self.__db, attrname)
         return attr
 
     def build(self):
+        '''
+        DBを値を取り出しresultを更新
+        '''
         del self.__items[:]
         file_paths =self.__db.get_result()
 
@@ -273,9 +299,16 @@ class FileListModel(QtCore.QAbstractItemModel):
         self.modelReset.emit()
 
     def set_root_path(self, root_dir_path):
+        '''
+        DBにルートディレクトリを設定し、自身をビルド
+        '''
         self.__db.set_root_path(root_dir_path)
+        self.build()
 
     def set_filters(self, filters):
+        '''
+        DBにフィルタを設定し、自身をビルド
+        '''
         self.__db.set_filters(filters)
         self.build()
 
