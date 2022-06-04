@@ -2,3 +2,4 @@ PySide
 Qt.py
 qtpy
 qtawesome
+sqlalchemy

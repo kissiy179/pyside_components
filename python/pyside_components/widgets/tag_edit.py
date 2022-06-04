@@ -65,9 +65,9 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         UI初期化
         '''
         self.clear_ui()
-        self.lo = QtWidgets.QHBoxLayout()
+        self.lo = FlowLayout(hspacing=5)
         self.lo.setContentsMargins(0,0,0,0)
-        self.lo.setSpacing(5)
+        # self.lo.setSpacing(5)
         self.setLayout(self.lo)
         tags = self.__tag_infos
 
@@ -192,8 +192,8 @@ class TagEdit(QtWidgets.QWidget):
         hlo.addWidget(self.tag_buttons_edit)
 
         # スペーサー
-        spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        hlo.addItem(spc)
+        # spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        # hlo.addItem(spc)
 
         # デバッグボタン
         if self.show_debug_button:

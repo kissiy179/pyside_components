@@ -46,6 +46,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
         # LineEdit
         self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.line_edit.setClearButtonEnabled(True)
         self.line_edit.textChanged.connect(self.textChanged)
         self.line_edit.editingFinished.connect(self.editingFinished)
@@ -57,6 +58,9 @@ class FilePathEdit(QtWidgets.QWidget):
         self.dialog_btn.setIcon(dir_icon)
         self.dialog_btn.clicked.connect(self.open_dialog)
         hlo.addWidget(self.dialog_btn)
+
+        # stylesheet
+        self.set_stylesheet()
         
     def open_dialog(self):
         text = self.text()
@@ -80,6 +84,7 @@ class FilePathEdit(QtWidgets.QWidget):
 
     def setText(self, text):
         self.line_edit.setText(text)
+        self.editingFinished.emit()
 
     def set_stylesheet(self):
         stylesheets = {}
