@@ -270,12 +270,13 @@ class FileListModel(QtCore.QAbstractItemModel):
     多くのメソッドは__item_classで指定したクラスに移譲する
     '''
     __db = None
-    __item_class = FileItem
+    # __item_class = FileItem
     __items = []
 
-    def __init__(self, root_dir_path='', filters=(), parent=None):
+    def __init__(self, root_dir_path='', filters=(), item_class=FileItem, parent=None):
         super(FileListModel, self).__init__(parent)
         self.__db = FileListDB(root_dir_path, filters)
+        self.__item_class = item_class
         self.build()
 
     def __getattr__(self, attrname):
