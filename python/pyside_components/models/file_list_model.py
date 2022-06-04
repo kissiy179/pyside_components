@@ -97,10 +97,6 @@ class FileListDB(object):
         DBをビルドする
         ルートディレクトリ以下のすべてのファイルを登録する
         '''
-        # if self.__session:
-        #     self.__session.close()
-            # self.__session.dispose()
-
         self.__engine = create_engine('sqlite:///:memory:', echo=echo)
         Base.metadata.create_all(self.__engine)
         SessionClass = sessionmaker(bind=self.__engine)
@@ -130,7 +126,6 @@ class FileListDB(object):
                 print(e)
 
         self.__session.commit()
-        # self.__session.close()
         self.__reuslt = file_paths
 
     def filter(self, filters=()):
@@ -160,38 +155,102 @@ class FileListDB(object):
                     f_ = FileInfo.file_path.like('%{}%'.format(f))
                     normal_filters.append(f_)
 
-        # SessionClass = sessionmaker(bind=self.__engine)
-        # self.__session = SessionClass()
         query = self.__session.query(FileInfo).filter(
             and_(*normal_filters),
             or_(*ext_filters)
         ).yield_per(10)
 
         self.__result = [row.file_path for row in query]
-        # self.__session.commit()
-        # self.__session.close()
 
 class FileItem(object):
+
+    __headers = ['Idx', 'File Name', 'Directory Path', 'Extension']
+    __header_idx_table = {value: idx for idx, value in enumerate(__headers)}
 
     def __init__(self, path):
         self.__path = path
         self.__dir_path = os.path.dirname(self.__path)
         self.__name = os.path.basename(self.__path)
 
-    def get_path(self):
-        return self.__path
+    def data(self, index, role):
+        row = index.row()
+        column = index.column()
 
-    def get_dir_path(self):
-        return self.__dir_path
+        if role == QtCore.Qt.DisplayRole:
+            if column == self.__header_idx_table.get('Idx'):
+                return row
 
-    def get_name(self):
-        return self.__name        
+            elif column == self.__header_idx_table.get('File Name'):
+                return self.__name
+
+            elif column == self.__header_idx_table.get('Directory Path'):
+                return self.__dir_path
+
+            elif column == self.__header_idx_table.get('Extension'):
+                return os.path.splitext(self.__name)[-1]
+
+        elif role == QtCore.Qt.BackgroundRole:
+            if row % 2:
+                return QtGui.QColor('#333')
+
+            else:
+                return QtGui.QColor('#3a3a3a')
+
+        elif role == QtCore.Qt.DecorationRole:
+            if column == self.__headers.index('File Name'):
+                return provider.icon(self.__path)
+                
+    @classmethod
+    def columnCount(cls):
+        return len(cls.__headers)
+
+    @classmethod
+    def headerData(cls, section, orientation, role):
+        if orientation == QtCore.Qt.Horizontal:
+            if role == QtCore.Qt.DisplayRole:
+                return cls.__headers[section]
+
+        else:
+            if role == QtCore.Qt.DisplayRole:
+                return section
+
+        return None
+
+class DummyItem(object):
+    
+    def __init__(self, path):
+        self.path = path
+
+    @classmethod
+    def columnCount(cls):
+        return 3
+
+    def data(self, index, role):
+        col = index.column()
+
+        if role == QtCore.Qt.DisplayRole:
+            if col == 0:
+                return self.path
+
+            else:
+                return self.__class__.__name__
+
+        elif role == QtCore.Qt.ForegroundRole:
+            return QtGui.QColor('red')
+
+        elif role == QtCore.Qt.BackgroundRole:
+            return QtGui.QColor('yellow')
+
+        elif role == QtCore.Qt.DecorationRole:
+            if col == 0:
+                return provider.icon(self.path)
 
 class FileListModel(QtCore.QAbstractItemModel):
     '''
     ファイルリストを扱うモデル
     '''
     __db = None
+    __item_class = FileItem
     __items = []
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
@@ -208,7 +267,7 @@ class FileListModel(QtCore.QAbstractItemModel):
         file_paths =self.__db.get_result()
 
         for file_path in file_paths:
-            self.__items.append(FileItem(file_path))
+            self.__items.append(self.__item_class(file_path))
 
         # モデルがリセットされていることを通知する
         self.modelReset.emit()
@@ -220,8 +279,11 @@ class FileListModel(QtCore.QAbstractItemModel):
         self.__db.set_filters(filters)
         self.build()
 
-    def columnCount(self, parent):
-        return 2
+    def columnCount(self, parent=None):
+        if hasattr(self.__item_class, 'columnCount'):
+            return self.__item_class.columnCount()
+
+        return 1
 
     def rowCount(self, parent):
         if not parent.isValid():
@@ -243,32 +305,17 @@ class FileListModel(QtCore.QAbstractItemModel):
         if not index.isValid():
             return
 
-        item = index.internalPointer()  
+        item = index.internalPointer()
+
+        if hasattr(item, 'data'):
+            return item.data(index, role)
 
         if role == QtCore.Qt.DisplayRole:
-            if index.column() == 0:
-                return item.get_name()
-
-            else:
-                return item.get_dir_path()
-
-        elif role == QtCore.Qt.DecorationRole:
-            if index.column() == 0:
-                return provider.icon(item.get_path())
-
+            return 'data'
 
     def headerData(self, section, orientation, role):
-        if orientation == QtCore.Qt.Horizontal:
-            if role == QtCore.Qt.DisplayRole:
-                if section == 0:
-                    return 'File Name'
+        if hasattr(self.__item_class, 'headerData'):
+            return self.__item_class.headerData(section, orientation, role)
 
-                else:
-                    return 'Directory Path'
-
-        else:
-            if role == QtCore.Qt.DisplayRole:
-                return section
-
-        return None
+        return super(FileListModel, self).headerData(section, orientation, role)
 
