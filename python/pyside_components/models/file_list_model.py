@@ -104,7 +104,6 @@ class FileListDB(object):
         Base.metadata.create_all(self.__engine)
         SessionClass = sessionmaker(bind=self.__engine)
         self.__session = SessionClass()
-
         file_paths = []
 
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
@@ -131,6 +130,7 @@ class FileListDB(object):
 
         self.__session.commit()
         # self.__session.close()
+        self.__reuslt = file_paths
 
     def filter(self, filters=()):
         '''
@@ -170,8 +170,7 @@ class FileListDB(object):
         # self.__session.commit()
         # self.__session.close()
 
-# class FileListModel(QtGui.QStandardItemModel):
-class FileListModel(QtCore.QStringListModel):
+class FileListModel(QtCore.QAbstractItemModel):
     '''
     ファイルリストを扱うモデル
     '''
@@ -189,8 +188,37 @@ class FileListModel(QtCore.QStringListModel):
 
     def update(self):
         self.__file_paths = self.__db.get_result()
-        self.setStringList(self.__file_paths)
+
+    def set_root_path(self, root_dir_path):
+        self.__db.set_root_path(root_dir_path)
 
     def set_filters(self, filters):
         self.__db.set_filters(filters)
         self.update()
+
+    def columnCount(self, parent):
+        return 1
+
+    def rowCount(self, parent):
+        if not parent.isValid():
+            return len(self.__file_paths)
+
+        return 0
+
+    def parent(self, index):
+        return QtCore.QModelIndex()
+
+    def index(self, row, column, parent):
+        if not parent.isValid():
+            return self.createIndex(row, column, row)
+
+        return QtCore.QModelIndex()
+
+    def data(self, index, role):
+        if not index.isValid():
+            return
+
+        if role == QtCore.Qt.DisplayRole:
+            row = index.row()
+            return self.__file_paths[row]
+
