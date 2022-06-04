@@ -26,9 +26,10 @@ class ProgressBar(QtWidgets.QProgressBar):
     def __init__(self, maximum, parent=None):
         super(ProgressBar, self).__init__(parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowFlags(QtCore.Qt.Popup)
+        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowTitle('Search files...')
         self.setMaximum(maximum)
-        self.move(QtGui.QCursor().pos())
+        # self.move(QtGui.QCursor().pos())
 
     def increment(self):
         self.__idx += 1
@@ -183,6 +184,10 @@ class FileItem(object):
         self.__path = path
         self.__dir_path = os.path.dirname(self.__path)
         self.__name = os.path.basename(self.__path)
+
+    @property
+    def path(self):
+        return self.__path
 
     def data(self, index, role):
         row = index.row()
