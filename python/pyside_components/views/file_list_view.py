@@ -1,36 +1,20 @@
 from qtpy import QtCore, QtGui, QtWidgets
 import pyside_components.widgets.path_edit as path_edit
 
-class FileListView(QtWidgets.QWidget):
+class FileListView(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
         super(FileListView, self).__init__(parent)
-        self.lo = QtWidgets.QVBoxLayout()
-        self.lo.setContentsMargins(0,0,0,0)
-        self.lo.setSpacing(0)
-        self.setLayout(self.lo)
-
-        # root dir edit
-        self.root_dir_edit = path_edit.DirectoryPathEdit(self)
-        self.lo.addWidget(self.root_dir_edit)
-
-        # view
-        self.view = QtWidgets.QTreeView()
-        self.view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.lo.addWidget(self.view)
-
-    def __getattr__(self, attrname):
-        attr = getattr(self.view, attrname)
-        return attr
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
     def setModel(self, model):
-        self.view.setModel(model)
+        super(FileListView, self).setModel(model)
         column_count = model.columnCount()
                 
         for i in range(column_count):
-            self.view.resizeColumnToContents(i)
+            self.resizeColumnToContents(i)
             # header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
     def set_root_dir_path(self, root_dir_path):
-        model = self.view.model()
+        model = self.model()
         model.set_root_path(root_dir_path)
