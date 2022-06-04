@@ -25,13 +25,11 @@ class FileListView(QtWidgets.QWidget):
 
     def setModel(self, model):
         self.view.setModel(model)
-
-        
-        # header = self.view.header()
-        self.view.resizeColumnToContents(0)
-        self.view.resizeColumnToContents(1)
-        # header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        # header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        column_count = model.columnCount()
+                
+        for i in range(column_count):
+            self.view.resizeColumnToContents(i)
+            # header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
     def set_root_dir_path(self, root_dir_path):
         model = self.view.model()
