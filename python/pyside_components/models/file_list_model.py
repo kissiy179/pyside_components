@@ -13,6 +13,7 @@ from sqlalchemy.sql import text, select, and_, or_, not_
 # from sqlalchemy_views import CreateView, DropView
 Base = declarative_base()
 echo = False
+provider = QtWidgets.QFileIconProvider()
 
 class ProgressBar(QtWidgets.QProgressBar):
     '''
@@ -170,38 +171,56 @@ class FileListDB(object):
         # self.__session.commit()
         # self.__session.close()
 
+class FileItem(object):
+
+    def __init__(self, path):
+        self.path = path
+        self.dir_path = os.path.dirname(self.path)
+        self.name = os.path.basename(self.path)
+        # self.__dir_path = os.path.dirname(self.__path)
+        # self.__base_name = os.path.basename(self.__path)
+
+    def get_dir_path(self):
+        return self.__dir_path
+
+    def get_name(self):
+        return self.__base_name        
+
 class FileListModel(QtCore.QAbstractItemModel):
     '''
     ファイルリストを扱うモデル
     '''
     __db = None
-    __file_paths = []
+    __items = []
 
     def __init__(self, root_dir_path='', filters=(), parent=None):
         super(FileListModel, self).__init__(parent)
         self.__db = FileListDB(root_dir_path, filters)
-        self.update()
+        self.build()
 
     def __getattr__(self, attrname):
         attr = getattr(self.__db, attrname)
         return attr
 
-    def update(self):
-        self.__file_paths = self.__db.get_result()
+    def build(self):
+        file_paths =self.__db.get_result()
+
+        for file_path in file_paths:
+            self.__items.append(FileItem(file_path))
 
     def set_root_path(self, root_dir_path):
         self.__db.set_root_path(root_dir_path)
 
     def set_filters(self, filters):
         self.__db.set_filters(filters)
-        self.update()
+        self.build()
 
     def columnCount(self, parent):
-        return 1
+        return 2
 
     def rowCount(self, parent):
         if not parent.isValid():
-            return len(self.__file_paths)
+            return len(self.__items)
 
         return 0
 
@@ -209,16 +228,27 @@ class FileListModel(QtCore.QAbstractItemModel):
         return QtCore.QModelIndex()
 
     def index(self, row, column, parent):
-        if not parent.isValid():
-            return self.createIndex(row, column, row)
+        if parent.isValid():
+            return QtCore.QModelIndex()
 
-        return QtCore.QModelIndex()
+        item = self.__items[row]
+        return self.createIndex(row, column, item)
 
     def data(self, index, role):
         if not index.isValid():
             return
 
-        if role == QtCore.Qt.DisplayRole:
-            row = index.row()
-            return self.__file_paths[row]
+        item = index.internalPointer()  
+
+        if index.column() == 0:
+            if role == QtCore.Qt.DisplayRole:
+                return item.name
+
+            elif role == QtCore.Qt.DecorationRole:
+                return provider.icon(item.path)
+
+        else:
+            if role == QtCore.Qt.DisplayRole:
+                return item.dir_path
+
 
