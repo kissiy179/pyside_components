@@ -9,6 +9,7 @@ class FileListView(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
         super(FileListView, self).__init__(parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
     def setModel(self, model):
@@ -25,3 +26,4 @@ class FileListView(QtWidgets.QTreeView):
     def set_root_dir_path(self, root_dir_path):
         model = self.model()
         model.set_root_path(root_dir_path)
+
