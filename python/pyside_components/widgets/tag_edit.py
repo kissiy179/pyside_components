@@ -28,7 +28,7 @@ class LineEditForAddingTag(TemporaryLineEdit):
         except:
             pass
 
-class TagItemButtnsEdit(QtWidgets.QWidget):
+class TagEdit(QtWidgets.QWidget):
     '''
     複数タグを扱うウィジェット
     タグの追加、削除、ON/OFFが可能
@@ -48,7 +48,7 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         '''
         初期化
         '''
-        super(TagItemButtnsEdit, self).__init__(parent)
+        super(TagEdit, self).__init__(parent)
         self.__tag_infos = tags
         self.init_ui()
 
@@ -65,11 +65,16 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         UI初期化
         '''
         self.clear_ui()
-        self.lo = FlowLayout(hspacing=5)
+        self.lo = FlowLayout(vspacing=3, hspacing=3)
         self.lo.setContentsMargins(0,0,0,0)
         # self.lo.setSpacing(5)
         self.setLayout(self.lo)
         tags = self.__tag_infos
+
+        # LineEdit
+        self.line_edit = LineEditForAddingTag()
+        self.line_edit.editingFinished.connect(self.add_tag2)
+        self.lo.addWidget(self.line_edit)
 
         for tag_name, enabled in sorted(tags.items()):
             btn = TagItemButton(tag_name, self)
@@ -91,6 +96,10 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         self.__tag_infos[tag_name] = True
         self.init_ui()
         self.updated.emit()
+
+    def add_tag2(self):
+        tag = self.line_edit.text()
+        self.add_tag(tag)
 
     def remove_tag(self, tag_name):
         '''
@@ -152,61 +161,6 @@ class TagItemButtnsEdit(QtWidgets.QWidget):
         tags = self.get_enabled_tag_names()
         print(tags)
 
-class TagEdit(QtWidgets.QWidget):
-    '''
-    複数タグを扱うウィジェット
-    QLineEditからタグを追加可能
-    タグの追加、削除、ON/OFFが可能
-    '''
-    updated = QtCore.Signal()
-
-    def __init__(self, show_debug_button=False, parent=None):
-        '''
-        初期化
-        '''
-        super(TagEdit, self).__init__(parent)
-        self.show_debug_button = show_debug_button
-        self.init_ui()
-
-    def __getattr__(self, attrname):
-        attr = getattr(self.tag_buttons_edit, attrname)
-        return attr
-
-    def init_ui(self):
-        '''
-        UI初期化
-        '''
-        hlo = QtWidgets.QHBoxLayout()
-        hlo.setContentsMargins(2,2,2,2)
-        hlo.setSpacing(5)
-        self.setLayout(hlo)
-        
-        # LineEdit
-        self.line_edit = LineEditForAddingTag()
-        hlo.addWidget(self.line_edit)
-        self.line_edit.editingFinished.connect(self.add_tag) # > add tag
-
-        # タグボタン用ウィジェット
-        self.tag_buttons_edit = TagItemButtnsEdit(parent=self)
-        self.tag_buttons_edit.updated.connect(self.updated)
-        hlo.addWidget(self.tag_buttons_edit)
-
-        # スペーサー
-        # spc = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        # hlo.addItem(spc)
-
-        # デバッグボタン
-        if self.show_debug_button:
-            btn = QtWidgets.QPushButton('debug')
-            btn.clicked.connect(self.show_tags)
-            hlo.addWidget(btn)
-
-    def add_tag(self):
-        '''
-        LineEditからタグ追加
-        '''
-        tag_name = self.line_edit.text()
-        self.tag_buttons_edit.add_tag(tag_name)
     
 
 '''
