@@ -73,7 +73,7 @@ class TagEdit(QtWidgets.QWidget):
 
         # LineEdit
         self.line_edit = LineEditForAddingTag()
-        self.line_edit.editingFinished.connect(self.add_tag2)
+        self.line_edit.editingFinished.connect(self.add_tag_from_line_edit)
         self.lo.addWidget(self.line_edit)
 
         for tag_name, enabled in sorted(tags.items()):
@@ -86,6 +86,9 @@ class TagEdit(QtWidgets.QWidget):
             self.lo.addWidget(btn)#, QtCore.Qt.AlignLeft)
             # self.__buttons.append(btn)
 
+        # Focus LineEdit
+        self.line_edit.setFocus()
+
     def add_tag(self, tag_name):
         '''
         タグを追加
@@ -97,7 +100,7 @@ class TagEdit(QtWidgets.QWidget):
         self.init_ui()
         self.updated.emit()
 
-    def add_tag2(self):
+    def add_tag_from_line_edit(self):
         tag = self.line_edit.text()
         self.add_tag(tag)
 
