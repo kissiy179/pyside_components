@@ -183,11 +183,28 @@ class FileItem(object):
     def __init__(self, path):
         self.__path = path
         self.__dir_path = os.path.dirname(self.__path)
-        self.__name = os.path.basename(self.__path)
+        self.__basename = os.path.basename(self.__path)
+        self.__name, self.__ext = os.path.splitext(self.__basename)
 
     @property
     def path(self):
         return self.__path
+
+    @property
+    def dir_path(self):
+        return self.__dir_path
+
+    @property
+    def basename(self):
+        return self.__basename
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def ext(self):
+        return self.__ext
 
     def data(self, index, role):
         row = index.row()
