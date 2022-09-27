@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from qtpy import QtCore, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 import qtawesome as qta
 
 class Image(QtWidgets.QLabel):
