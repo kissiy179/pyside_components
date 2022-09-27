@@ -42,7 +42,7 @@ class TagEdit(QtWidgets.QWidget):
     '''
 
     __tag_infos = {}
-    updated = QtCore.Signal()
+    updated = QtCore.Signal(list)
 
     def __init__(self, tags={}, parent=None):
         '''
@@ -98,7 +98,7 @@ class TagEdit(QtWidgets.QWidget):
 
         self.__tag_infos[tag_name] = True
         self.init_ui()
-        self.updated.emit()
+        self.update()
 
     def add_tag_from_line_edit(self):
         tag = self.line_edit.text()
@@ -112,7 +112,7 @@ class TagEdit(QtWidgets.QWidget):
             return
             
         del self.__tag_infos[tag_name]
-        self.updated.emit()
+        self.update()
         
     def set_tag_enabled(self, tag_name, enabled):
         '''
@@ -122,7 +122,7 @@ class TagEdit(QtWidgets.QWidget):
             return
             
         self.__tag_infos[tag_name] = enabled
-        self.updated.emit()
+        self.update()
 
     def change_tag(self, old_tag_name, new_tag_name):
         '''
@@ -134,7 +134,7 @@ class TagEdit(QtWidgets.QWidget):
         enabled = self.__tag_infos.get(old_tag_name, True)
         del self.__tag_infos[old_tag_name]
         self.__tag_infos[new_tag_name] = enabled
-        self.updated.emit()
+        self.update()
 
     def get_tag_infos(self):
         '''
@@ -148,7 +148,7 @@ class TagEdit(QtWidgets.QWidget):
         '''
         self.__tag_infos = tags
         self.init_ui()
-        self.updated.emit()
+        self.update()
 
     def get_enabled_tag_names(self):
         '''
@@ -163,6 +163,10 @@ class TagEdit(QtWidgets.QWidget):
         '''
         tags = self.get_enabled_tag_names()
         print(tags)
+
+    def update(self):
+        tags = self.get_enabled_tag_names()
+        self.updated.emit(tags)
 
     
 
