@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from qtpy import QtCore, QtWidgets
 import qtawesome as qta
 
