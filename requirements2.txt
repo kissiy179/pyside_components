@@ -1,5 +1,4 @@
 PySide
 Qt.py
-qtpy
 qtawesome
 sqlalchemy<=1.4.47
